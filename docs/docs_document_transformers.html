@@ -1,0 +1,673 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_document_transformers</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-document-transformer-management-system">API Documentation for Document Transformer Management System</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for configuring and using document transformers. It supports creating, retrieving, updating, and deleting transformer configurations, as well as managing transformer map configurations. The transformers process documents and store the results in a MongoDB database.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8103
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="configure-transformer">1. Configure Transformer</h3>
+<h4 id="post-configure_transformer"><code>POST /configure_transformer</code></h4>
+<p>Creates a new transformer configuration with specified parameters.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (optional, str): The unique ID for the transformer configuration. If not provided, a new ID will be generated.</li>
+<li><code>transformer</code> (str): The transformer class name.</li>
+<li><code>kwargs</code> (dict): Keyword arguments for the transformer.</li>
+<li><code>add_prefix_to_id</code> (optional, str): Prefix to add to the document ID.</li>
+<li><code>add_suffix_to_id</code> (optional, str): Suffix to add to the document ID.</li>
+<li><code>add_split_index_to_id</code> (bool): Whether to add split index to the document ID.</li>
+<li><code>output_store</code> (optional, dict): Output store configuration.</li>
+<li><code>description</code> (optional, str): Description of the transformer configuration.</li>
+<li><code>metadata</code> (optional, dict): Metadata associated with the transformer configuration.</li>
+<li><code>add_metadata_to_docs</code> (dict): Metadata to add to documents.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the unique ID of the created transformer configuration.</li>
+<li>400 Bad Request: Invalid input or configuration ID already exists.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8103/configure_transformer"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "transformer": "CharacterTextSplitter",
+  "kwargs": {"chunk_size": 1, "chunk_overlap": 0, "separator": " "},
+  "add_split_index_to_id": true,
+  "output_store": {"collection_name": "text_files"},
+  "description": "Character Text Splitter Configuration",
+  "metadata": {"project": "AI Research"},
+  "add_metadata_to_docs": {"author": "John Doe"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-transformer-configurations">2. List Transformer Configurations</h3>
+<h4 id="get-list_transformer_configs"><code>GET /list_transformer_configs</code></h4>
+<p>Lists all existing transformer configurations.</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>skip</code> (optional, int): Number of records to skip.</li>
+<li><code>limit</code> (optional, int): Maximum number of records to return.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of all transformer configurations.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8103/list_transformer_configs?skip=0&amp;limit=10"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+    <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="get-transformer-configuration-by-id">3. Get Transformer Configuration by ID</h3>
+<h4 id="get-get_transformer_configconfig_id"><code>GET /get_transformer_config/{config_id}</code></h4>
+<p>Retrieves a specific transformer configuration by its unique ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the transformer configuration to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the transformer configuration.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8103/get_transformer_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+  <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="search-transformer-configurations">4. Search Transformer Configurations</h3>
+<h4 id="post-search_transformer_configs"><code>POST /search_transformer_configs</code></h4>
+<p>Searches for transformer configurations based on specified criteria.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>transformer</code> (optional, str): Transformer type to filter configurations.</li>
+<li><code>add_prefix_to_id</code> (optional, str): Prefix to filter configurations.</li>
+<li><code>add_suffix_to_id</code> (optional, str): Suffix to filter configurations.</li>
+<li><code>add_split_index_to_id</code> (optional, bool): Whether to filter by split index addition.</li>
+<li><code>metadata</code> (optional, dict): Metadata to filter configurations.</li>
+<li><code>skip</code> (optional, int): Number of records to skip.</li>
+<li><code>limit</code> (optional, int): Maximum number of records to return.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of configurations matching the search criteria.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8103/search_transformer_configs"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "transformer": "CharacterTextSplitter",
+  "add_split_index_to_id": true,
+  "metadata": {"project": "AI Research"},
+  "skip": 0,
+  "limit": 10
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+    <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="delete-transformer-configuration">5. Delete Transformer Configuration</h3>
+<h4 id="delete-delete_transformer_configconfig_id"><code>DELETE /delete_transformer_config/{config_id}</code></h4>
+<p>Deletes a specific transformer configuration by its unique ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the transformer configuration to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Configuration deleted successfully.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8103/delete_transformer_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="configure-transformer-map">6. Configure Transformer Map</h3>
+<h4 id="post-configure_transformer_map"><code>POST /configure_transformer_map</code></h4>
+<p>Creates a new transformer map configuration with specified parameters.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (optional, str): The unique ID for the transformer map configuration. If not provided, a new ID will be generated.</li>
+<li><code>transformer_map</code> (dict): Mapping of queries to transformer configurations.</li>
+<li><code>default_transformer</code> (optional, str): The default transformer class name.</li>
+<li><code>default_kwargs</code> (dict): Default keyword arguments for the transformer.</li>
+<li><code>default_add_prefix_to_id</code> (optional, str): Default prefix to add to the document ID.</li>
+<li><code>default_add_suffix_to_id</code> (optional, str): Default suffix to add to the document ID.</li>
+<li><code>default_add_split_index_to_id</code> (bool): Whether to add default split index to the document ID.</li>
+<li><code>default_add_metadata_to_docs</code> (dict): Default metadata to add to documents.</li>
+<li><code>default_output_store</code> (optional, dict): Default output store configuration.</li>
+<li><code>description</code> (optional, str): Description of the transformer map configuration.</li>
+<li><code>metadata</code> (optional, dict): Metadata associated with the transformer map configuration.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the unique ID of the created transformer map configuration.</li>
+<li>400 Bad Request: Invalid input or configuration ID already exists.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8103/configure_transformer_map"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "transformer_map": {"query1": "abcd1234-efgh-5678-ijkl-9012mnop3456"},
+  "default_transformer": "CharacterTextSplitter",
+  "default_kwargs": {"chunk_size": 1000, "chunk_overlap": 200},
+  "default_add_split_index_to_id
+
+": true,
+  "default_add_metadata_to_docs": {"default_key": "default_value"},
+  "description": "Default transformer map configuration"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"wxyz5678-abcd-1234-ijkl-9012mnop3456"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-transformer-map-configuration-by-id">7. Get Transformer Map Configuration by ID</h3>
+<h4 id="get-get_transformer_map_configconfig_id"><code>GET /get_transformer_map_config/{config_id}</code></h4>
+<p>Retrieves a specific transformer map configuration by its unique ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the transformer map configuration to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the transformer map configuration.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8103/get_transformer_map_config/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"wxyz5678-abcd-1234-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"transformer_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"query1"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span> <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span> <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+  <span class="token string">"default_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1000</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"default_key"</span><span class="token punctuation">:</span> <span class="token string">"default_value"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Default transformer map configuration"</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token keyword">null</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="transform-documents">8. Transform Documents</h3>
+<h4 id="post-transform_documentsconfig_id"><code>POST /transform_documents/{config_id}</code></h4>
+<p>Transforms documents using a configured transformer map identified by a unique configuration ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the transformer map configuration.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>documents</code> (list): List of documents to be transformed.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the transformed documents with their metadata.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8103/transform_documents/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "documents": [
+    {
+      "page_content": "This is the content of the document.",
+      "metadata": {"author": "John Doe", "category": "Research"}
+    }
+  ]
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span> <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span> <span class="token string">"doc_store_collection"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="transform-documents-from-store">9. Transform Documents from Store</h3>
+<h4 id="post-transform_documents_from_storeconfig_id"><code>POST /transform_documents_from_store/{config_id}</code></h4>
+<p>Transforms documents directly from a specified MongoDB collection using a configured transformer map identified by a unique configuration ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the transformer map configuration.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>input_store</code> (dict): Input store configuration.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the transformed documents with their metadata.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8103/transform_documents_from_store/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "input_store": {"collection_name": "input_text_files"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span> <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span> <span class="token string">"doc_store_collection"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="list-transformer-map-configurations">10. List Transformer Map Configurations</h3>
+<h4 id="get-list_transformer_map_configs"><code>GET /list_transformer_map_configs</code></h4>
+<p>Lists all existing transformer map configurations.</p>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>skip</code> (optional, int): Number of records to skip.</li>
+<li><code>limit</code> (optional, int): Maximum number of records to return.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of all transformer map configurations.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8103/list_transformer_map_configs?skip=0&amp;limit=10"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"wxyz5678-abcd-1234-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+    <span class="token string">"transformer_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"query1"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span> <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span> <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"default_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1000</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"default_key"</span><span class="token punctuation">:</span> <span class="token string">"default_value"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Default transformer map configuration"</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token keyword">null</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="search-transformer-map-configurations">11. Search Transformer Map Configurations</h3>
+<h4 id="post-search_transformer_map_configs"><code>POST /search_transformer_map_configs</code></h4>
+<p>Searches for transformer map configurations based on specified criteria.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>transformer</code> (optional, str): Transformer type to filter configurations.</li>
+<li><code>add_prefix_to_id</code> (optional, str): Prefix to filter configurations.</li>
+<li><code>add_suffix_to_id</code> (optional, str): Suffix to filter configurations.</li>
+<li><code>add_split_index_to_id</code> (optional, bool): Whether to filter by split index addition.</li>
+<li><code>metadata</code> (optional, dict): Metadata to filter configurations.</li>
+<li><code>skip</code> (optional, int): Number of records to skip.</li>
+<li><code>limit</code> (optional, int): Maximum number of records to return.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of configurations matching the search criteria.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8103/search_transformer_map_configs"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "transformer": "CharacterTextSplitter",
+  "add_split_index_to_id": true,
+  "metadata": {"project": "AI Research"},
+  "skip": 0,
+  "limit": 10
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"wxyz5678-abcd-1234-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+    <span class="token string">"transformer_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"query1"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span> <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span> <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"default_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1000</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"default_key"</span><span class="token punctuation">:</span> <span class="token string">"default_value"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Default transformer map configuration"</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token keyword">null</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="delete-transformer-map-configuration">12. Delete Transformer Map Configuration</h3>
+<h4 id="delete-delete_transformer_map_configconfig_id"><code>DELETE /delete_transformer_map_config/{config_id}</code></h4>
+<p>Deletes a specific transformer map configuration by its unique ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the transformer map configuration to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Configuration deleted successfully.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8103/delete_transformer_map_config/wxyz5678-ab
+
+cd-1234-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<h3 id="transformerconfig">TransformerConfig</h3>
+<p>Model representing the configuration for a transformer.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>config_id</code> (optional, str): The unique ID for the transformer configuration.</li>
+<li><code>transformer</code> (str): The transformer class name.</li>
+<li><code>kwargs</code> (dict): Keyword arguments for the transformer.</li>
+<li><code>add_prefix_to_id</code> (optional, str): Prefix to add to the document ID.</li>
+<li><code>add_suffix_to_id</code> (optional, str): Suffix to add to the document ID.</li>
+<li><code>add_split_index_to_id</code> (bool): Whether to add split index to the document ID.</li>
+<li><code>output_store</code> (optional, dict): Output store configuration.</li>
+<li><code>description</code> (optional, str): Description of the transformer configuration.</li>
+<li><code>metadata</code> (optional, dict): Metadata associated with the transformer configuration.</li>
+<li><code>add_metadata_to_docs</code> (dict): Metadata to add to documents.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+  <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="transformermapconfig">TransformerMapConfig</h3>
+<p>Model representing the configuration for a transformer map.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>config_id</code> (optional, str): The unique ID for the transformer map configuration.</li>
+<li><code>transformer_map</code> (dict): Mapping of queries to transformer configurations.</li>
+<li><code>default_transformer</code> (optional, str): The default transformer class name.</li>
+<li><code>default_kwargs</code> (dict): Default keyword arguments for the transformer.</li>
+<li><code>default_add_prefix_to_id</code> (optional, str): Default prefix to add to the document ID.</li>
+<li><code>default_add_suffix_to_id</code> (optional, str): Default suffix to add to the document ID.</li>
+<li><code>default_add_split_index_to_id</code> (bool): Whether to add default split index to the document ID.</li>
+<li><code>default_add_metadata_to_docs</code> (dict): Default metadata to add to documents.</li>
+<li><code>default_output_store</code> (optional, dict): Default output store configuration.</li>
+<li><code>description</code> (optional, str): Description of the transformer map configuration.</li>
+<li><code>metadata</code> (optional, dict): Metadata associated with the transformer map configuration.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"wxyz5678-abcd-1234-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"transformer_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"query1"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span> <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span> <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span> <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+  <span class="token string">"default_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1000</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"default_add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"default_key"</span><span class="token punctuation">:</span> <span class="token string">"default_value"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token keyword">null</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Default transformer map configuration"</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token keyword">null</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="documentmodel">DocumentModel</h3>
+<p>Model representing a document.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>page_content</code> (str): The content of the document.</li>
+<li><code>metadata</code> (dict): Metadata associated with the document.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="searchconfig">SearchConfig</h3>
+<p>Model representing the criteria for searching configurations.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>transformer</code> (optional, str): Transformer type to filter configurations.</li>
+<li><code>add_prefix_to_id</code> (optional, str): Prefix to filter configurations.</li>
+<li><code>add_suffix_to_id</code> (optional, str): Suffix to filter configurations.</li>
+<li><code>add_split_index_to_id</code> (optional, bool): Whether to filter by split index addition.</li>
+<li><code>metadata</code> (optional, dict): Metadata to filter configurations.</li>
+<li><code>skip</code> (optional, int): Number of records to skip.</li>
+<li><code>limit</code> (optional, int): Maximum number of records to return.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+  <span class="token string">"add_prefix_to_id"</span><span class="token punctuation">:</span> <span class="token string">"doc_"</span><span class="token punctuation">,</span>
+  <span class="token string">"add_suffix_to_id"</span><span class="token punctuation">:</span> <span class="token string">"_001"</span><span class="token punctuation">,</span>
+  <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"skip"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+  <span class="token string">"limit"</span><span class="token punctuation">:</span> <span class="token number">10</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="configure-transformer-1">1. Configure Transformer</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/configure_transformer"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span> <span class="token string">"separator"</span><span class="token punctuation">:</span> <span class="token string">" "</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Character Text Splitter Configuration"</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-transformer-configurations-1">2. List Transformer Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/list_transformer_configs?skip=0&amp;limit=10"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-transformer-configuration-by-id-1">3. Get Transformer Configuration by ID</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/get_transformer_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="search-transformer-configurations-1">4. Search Transformer Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/search_transformer_configs"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"skip"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token string">"limit"</span><span class="token punctuation">:</span> <span class="token number">10</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-transformer-configuration-1">5. Delete Transformer Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/delete_transformer_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="configure-transformer-map-1">6. Configure Transformer Map</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/configure_transformer_map"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"transformer_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"query1"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"default_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"chunk_size"</span><span class="token punctuation">:</span> <span class="token number">1000</span><span class="token punctuation">,</span> <span class="token string">"chunk_overlap"</span><span class="token punctuation">:</span> <span class="token number">200</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"default_add_metadata_to_docs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"default_key"</span><span class="token punctuation">:</span> <span class="token string">"default_value"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Default transformer map configuration"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-transformer-map-configuration-by-id-1">7. Get Transformer Map Configuration by ID</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/get_transformer_map_config/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="transform-documents-1">8. Transform Documents</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/transform_documents/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"documents"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span>
+            <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+            <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="transform-documents-from-store-1">9. Transform Documents from Store</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/transform_documents_from_store/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"input_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"input_text_files"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-transformer-map-configurations-1">10. List Transformer Map Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/list_transformer_map_configs?skip=0&amp;limit=10"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="search-transformer-map-configurations-1">11. Search Transformer Map Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/search_transformer_map_configs"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+   
+
+ <span class="token string">"transformer"</span><span class="token punctuation">:</span> <span class="token string">"CharacterTextSplitter"</span><span class="token punctuation">,</span>
+    <span class="token string">"add_split_index_to_id"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"skip"</span><span class="token punctuation">:</span> <span class="token number">0</span><span class="token punctuation">,</span>
+    <span class="token string">"limit"</span><span class="token punctuation">:</span> <span class="token number">10</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-transformer-map-configuration-1">12. Delete Transformer Map Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8103/delete_transformer_map_config/wxyz5678-abcd-1234-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

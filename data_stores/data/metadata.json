@@ -1,0 +1,108 @@
+{
+    "goodbye.txt": {
+        "name": "goodbye.txt",
+        "size": 15,
+        "modified_time": "Mon Jun 17 12:34:23 2024",
+        "created_time": "Mon Jun 17 12:34:23 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\api_v1\\data\\goodbye.txt",
+        "mime_type": "text/plain"
+    },
+    "hello.txt": {
+        "name": "hello.txt",
+        "size": 13,
+        "modified_time": "Mon Jun 17 12:34:24 2024",
+        "created_time": "Mon Jun 17 12:34:23 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\api_v1\\data\\hello.txt",
+        "mime_type": "text/plain"
+    },
+    "quote_chars_converter_docs.pdf": {
+        "name": "quote_chars_converter_docs.pdf",
+        "size": 483122,
+        "modified_time": "Mon Jun 17 12:41:51 2024",
+        "created_time": "Mon Jun 17 11:29:26 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\api_v1\\data\\quote_chars_converter_docs.pdf",
+        "mime_type": "application/pdf",
+        "file_description": "test description"
+    },
+    "TemplateLetteraDiffida.docx": {
+        "name": "TemplateLetteraDiffida.docx",
+        "size": 46729,
+        "modified_time": "Sun Jun 30 19:02:26 2024",
+        "created_time": "Sat Jun 29 21:37:39 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\TemplateLetteraDiffida.docx",
+        "mime_type": null,
+        "custom_metadata": {}
+    },
+    "test_dir": {
+        "test_key": 0
+    },
+    "test_dir_3": {
+        "description": "test description",
+        "new_test_key": 0
+    },
+    "test_dir_3/TemplateLetteraDiffida.docx": {
+        "name": "test_dir_3/TemplateLetteraDiffida.docx",
+        "size": 46729,
+        "modified_time": "Sat Jun 29 22:25:06 2024",
+        "created_time": "Sat Jun 29 22:25:06 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\test_dir_3\\TemplateLetteraDiffida.docx",
+        "mime_type": null,
+        "custom_metadata": {
+            "file_description": "test description for test file",
+            "new_test_key_for_test_file": 0
+        }
+    },
+    "test_dir_2/TemplateLetteraDiffida.docx": {
+        "name": "test_dir_2/TemplateLetteraDiffida.docx",
+        "size": 46729,
+        "modified_time": "Sun Jun 30 19:06:56 2024",
+        "created_time": "Sun Jun 30 19:02:39 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\test_dir_2\\TemplateLetteraDiffida.docx",
+        "mime_type": null,
+        "custom_metadata": {}
+    },
+    "test_dir_1/tmplt.html": {
+        "name": "test_dir_1/tmplt.html",
+        "size": 6308,
+        "modified_time": "Sun Jun 30 19:50:54 2024",
+        "created_time": "Sun Jun 30 19:50:54 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\test_dir_1\\tmplt.html",
+        "mime_type": "text/html",
+        "custom_metadata": {
+            "file_description": "test description",
+            "my_test_key": 1
+        }
+    },
+    "test_dir_4/cv.html": {
+        "name": "test_dir_4/cv.html",
+        "size": 4251,
+        "modified_time": "Mon Jul  1 02:41:14 2024",
+        "created_time": "Mon Jul  1 02:41:14 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\test_dir_4\\cv.html",
+        "mime_type": "text/html",
+        "custom_metadata": {}
+    },
+    "test_dir_3/TemplateLetteraDiffida_v1.docx": {
+        "name": "test_dir_3/TemplateLetteraDiffida_v1.docx",
+        "size": 41353,
+        "modified_time": "Mon Jul  1 03:42:29 2024",
+        "created_time": "Mon Jul  1 03:42:29 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\test_dir_3\\TemplateLetteraDiffida_v1.docx",
+        "mime_type": null,
+        "custom_metadata": {
+            "file_description": "test decription for test file"
+        }
+    },
+    "TemplateLetteraDiffida_v1.docx": {
+        "name": "TemplateLetteraDiffida_v1.docx",
+        "size": 41353,
+        "modified_time": "Mon Jul  1 03:43:03 2024",
+        "created_time": "Mon Jul  1 03:43:03 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\NLPProjects\\workspace\\data_stores\\data\\TemplateLetteraDiffida_v1.docx",
+        "mime_type": null,
+        "custom_metadata": {
+            "file_description": "test decription for test file",
+            "key": 0
+        }
+    }
+}

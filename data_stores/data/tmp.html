@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>tmp</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p>Lo script può essere eseguito da riga di comando e converte tutti i caratteri <code>'</code> in caratteri <code>’</code>. Il file di input e il file di output possono essere specificati come percorsi relativi o assoluti.</p>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> os
+<span class="token keyword">import</span> sys
+
+<span class="token keyword">def</span> <span class="token function">convert_quotes</span><span class="token punctuation">(</span>input_file<span class="token punctuation">,</span> output_file<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Leggi il file di input</span>
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>input_file<span class="token punctuation">,</span> <span class="token string">'r'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token builtin">file</span><span class="token punctuation">:</span>
+            content <span class="token operator">=</span> <span class="token builtin">file</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> FileNotFoundError<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"Errore: il file {input_file} non è stato trovato."</span><span class="token punctuation">)</span>
+        sys<span class="token punctuation">.</span>exit<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+    
+    <span class="token comment"># Converti i caratteri &lt;'&gt; in &lt;’&gt;</span>
+    content <span class="token operator">=</span> content<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token string">"'"</span><span class="token punctuation">,</span> <span class="token string">"’"</span><span class="token punctuation">)</span>
+    
+    <span class="token comment"># Scrivi il contenuto modificato nel file di output</span>
+    <span class="token keyword">with</span> <span class="token builtin">open</span><span class="token punctuation">(</span>output_file<span class="token punctuation">,</span> <span class="token string">'w'</span><span class="token punctuation">,</span> encoding<span class="token operator">=</span><span class="token string">'utf-8'</span><span class="token punctuation">)</span> <span class="token keyword">as</span> <span class="token builtin">file</span><span class="token punctuation">:</span>
+        <span class="token builtin">file</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span>
+    
+    <span class="token keyword">print</span><span class="token punctuation">(</span>f<span class="token string">"Conversione completata. File di output: {output_file}"</span><span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> __name__ <span class="token operator">==</span> <span class="token string">"__main__"</span><span class="token punctuation">:</span>
+    <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>sys<span class="token punctuation">.</span>argv<span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token number">3</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string">"Uso: python convert_quotes.py &lt;file_di_input&gt; &lt;file_di_output&gt;"</span><span class="token punctuation">)</span>
+        sys<span class="token punctuation">.</span>exit<span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+
+    input_path <span class="token operator">=</span> sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+    output_path <span class="token operator">=</span> sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+
+    <span class="token comment"># Se il percorso non è assoluto, assume che il file si trovi nella stessa directory dello script</span>
+    <span class="token keyword">if</span> <span class="token operator">not</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>isabs<span class="token punctuation">(</span>input_path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        input_path <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>os<span class="token punctuation">.</span>getcwd<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> input_path<span class="token punctuation">)</span>
+    
+    <span class="token keyword">if</span> <span class="token operator">not</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>isabs<span class="token punctuation">(</span>output_path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+        output_path <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>join<span class="token punctuation">(</span>os<span class="token punctuation">.</span>getcwd<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> output_path<span class="token punctuation">)</span>
+    
+    convert_quotes<span class="token punctuation">(</span>input_path<span class="token punctuation">,</span> output_path<span class="token punctuation">)</span>
+</code></pre>
+<h3 id="utilizzo">Utilizzo</h3>
+<ol>
+<li>Salva lo script in un file chiamato, ad esempio, <code>convert_quotes.py</code>.</li>
+<li>Apri il terminale o il prompt dei comandi.</li>
+<li>Esegui lo script usando il comando:<pre class=" language-sh"><code class="prism  language-sh">python convert_quotes.py &lt;file_di_input&gt; &lt;file_di_output&gt;
+</code></pre>
+dove <code>&lt;file_di_input&gt;</code> è il percorso del file di input e <code>&lt;file_di_output&gt;</code> è il percorso del file di output. Entrambi i percorsi possono essere assoluti o relativi alla directory corrente.</li>
+</ol>
+<p>Esempio:</p>
+<pre class=" language-sh"><code class="prism  language-sh">python convert_quotes.py input.txt output.txt
+</code></pre>
+</div>
+</body>
+
+</html>

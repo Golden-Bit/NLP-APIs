@@ -1,0 +1,409 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_dataloaders</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-custom-directory-loader">API Documentation for Custom Directory Loader</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for configuring and using custom directory loaders. It allows users to create loader configurations, load documents using these configurations, retrieve loader configurations by ID, list all existing configurations, search for configurations based on criteria, and delete configurations. The configurations and loaded documents are stored in a MongoDB database.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8101
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="configure-loader">1. Configure Loader</h3>
+<h4 id="post-configure_loader"><code>POST /configure_loader</code></h4>
+<p>Creates a new loader configuration with specified parameters.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (optional, str): The unique ID for the loader configuration. If not provided, a new ID will be generated. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+<li><code>path</code> (str): The path to the directory containing documents to load. Example: “/path/to/documents”.</li>
+<li><code>loader_map</code> (dict): Mapping of file patterns to loader classes. Example: {"<em>.txt": “TextLoader”, "</em>.html": “BSHTMLLoader”}.</li>
+<li><code>loader_kwargs_map</code> (optional, dict): Optional keyword arguments for each loader. Example: {"*.csv": {“delimiter”: “,”}}.</li>
+<li><code>metadata_map</code> (optional, dict): Mapping of file patterns to metadata. Example: {"*.txt": {“author”: “John Doe”}}.</li>
+<li><code>default_metadata</code> (optional, dict): Default metadata to apply to all documents. Example: {“project”: “AI Research”}.</li>
+<li><code>recursive</code> (bool): Whether to load documents recursively from subdirectories. Example: True.</li>
+<li><code>max_depth</code> (optional, int): Maximum depth for recursive loading. Example: 5.</li>
+<li><code>silent_errors</code> (bool): Whether to ignore errors during document loading. Example: True.</li>
+<li><code>load_hidden</code> (bool): Whether to load hidden files. Example: True.</li>
+<li><code>show_progress</code> (bool): Whether to show progress during loading. Example: True.</li>
+<li><code>use_multithreading</code> (bool): Whether to use multithreading for loading. Example: True.</li>
+<li><code>max_concurrency</code> (int): Maximum number of concurrent threads for loading. Example: 8.</li>
+<li><code>exclude</code> (optional, list): List of file patterns to exclude from loading. Example: ["<em>.tmp", "</em>.log"].</li>
+<li><code>sample_size</code> (int): Number of samples to load. If 0, all documents are loaded. Example: 10.</li>
+<li><code>randomize_sample</code> (bool): Whether to randomize the sample. Example: True.</li>
+<li><code>sample_seed</code> (optional, int): Seed for randomization of the sample. Example: 42.</li>
+<li><code>output_store_map</code> (optional, dict): Mapping of file patterns to output stores. Example: {"*.txt": {“collection_name”: “text_files”}}.</li>
+<li><code>default_output_store</code> (optional, dict): Default output store configuration. Example: {“collection_name”: “default_store”}.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the unique ID of the created loader configuration.</li>
+<li>400 Bad Request: Invalid input or configuration ID already exists.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8101/configure_loader"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "path": "/path/to/documents",
+  "loader_map": {"*.txt": "TextLoader", "*.html": "BSHTMLLoader"},
+  "default_metadata": {"project": "AI Research"},
+  "recursive": true,
+  "max_depth": 5,
+  "silent_errors": true,
+  "load_hidden": true,
+  "show_progress": true,
+  "use_multithreading": true,
+  "max_concurrency": 8,
+  "exclude": ["*.tmp", "*.log"],
+  "sample_size": 10,
+  "randomize_sample": true,
+  "sample_seed": 42,
+  "output_store_map": {"*.txt": {"collection_name": "text_files"}},
+  "default_output_store": {"collection_name": "default_store"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="load-documents">2. Load Documents</h3>
+<h4 id="post-load_documentsconfig_id"><code>POST /load_documents/{config_id}</code></h4>
+<p>Loads documents using a pre-configured loader identified by a unique configuration ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the loader configuration. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of loaded documents with their metadata.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8101/load_documents/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+      <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+      <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+      <span class="token string">"doc_store_collection"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="get-configuration-by-id">3. Get Configuration by ID</h3>
+<h4 id="get-get_configconfig_id"><code>GET /get_config/{config_id}</code></h4>
+<p>Retrieves a single loader configuration by its unique ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the loader configuration to retrieve. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the loader configuration.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8101/get_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+  <span class="token string">"loader_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span> <span class="token string">"*.html"</span><span class="token punctuation">:</span> <span class="token string">"BSHTMLLoader"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+  <span class="token string">"silent_errors"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"load_hidden"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"show_progress"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"use_multithreading"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"max_concurrency"</span><span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+  <span class="token string">"exclude"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"*.tmp"</span><span class="token punctuation">,</span> <span class="token string">"*.log"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token string">"sample_size"</span><span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  <span class="token string">"randomize_sample"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"sample_seed"</span><span class="token punctuation">:</span> <span class="token number">42</span><span class="token punctuation">,</span>
+  <span class="token string">"output_store_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"default_store"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-configurations">4. List Configurations</h3>
+<h4 id="get-list_configs"><code>GET /list_configs</code></h4>
+<p>Lists all existing loader configurations.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of all loader configurations.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8101/list_configs"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+    <span class="token string">"loader_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span> <span class="token string">"*.html"</span><span class="token punctuation">:</span> <span class="token string">"BSHTMLLoader"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+    <span class="token string">"silent_errors"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"load_hidden"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"show_progress"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"use_multithreading"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"max_concurrency"</span><span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+    <span class="token string">"exclude"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"*.tmp"</span><span class="token punctuation">,</span> <span class="token string">"*.log"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"sample_size"</span><span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    <span class="token string">"randomize_sample"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"sample_seed"</span><span class="token punctuation">:</span> <span class="token number">42</span><span class="token punctuation">,</span>
+    <span class="token string">"output_store_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"default_store"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="search-configurations">5. Search Configurations</h3>
+<h4 id="post-search_configs"><code>POST /search_configs</code></h4>
+<p>Searches for loader configurations based on specified criteria.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>path</code> (optional, str): Path to filter configurations. Example: “/path/to/documents”.</li>
+<li><code>loader_type</code> (optional, str): Loader type to filter configurations. Example: “TextLoader”.</li>
+<li><code>recursive</code> (optional, bool): Whether to filter by recursive loading. Example: True.</li>
+<li><code>max_depth</code> (optional, int): Maximum depth to filter configurations. Example: 5.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of configurations matching the search criteria.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8101/search_configs"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "path": "/path/to/documents",
+  "loader_type": "TextLoader",
+  "recursive": true,
+  "max_depth": 5
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> "abcd123
+
+<span class="token number">4</span><span class="token operator">-</span>efgh<span class="token number">-5678</span><span class="token operator">-</span>ijkl<span class="token operator">-</span>9012mnop3456"<span class="token punctuation">,</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+    <span class="token string">"loader_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span> <span class="token string">"*.html"</span><span class="token punctuation">:</span> <span class="token string">"BSHTMLLoader"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+    <span class="token string">"silent_errors"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"load_hidden"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"show_progress"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"use_multithreading"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"max_concurrency"</span><span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+    <span class="token string">"exclude"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"*.tmp"</span><span class="token punctuation">,</span> <span class="token string">"*.log"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"sample_size"</span><span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    <span class="token string">"randomize_sample"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+    <span class="token string">"sample_seed"</span><span class="token punctuation">:</span> <span class="token number">42</span><span class="token punctuation">,</span>
+    <span class="token string">"output_store_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"default_store"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="delete-configuration">6. Delete Configuration</h3>
+<h4 id="delete-delete_configconfig_id"><code>DELETE /delete_config/{config_id}</code></h4>
+<p>Deletes a loader configuration by its unique ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the loader configuration to delete. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Configuration deleted successfully.</li>
+<li>404 Not Found: Configuration not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8101/delete_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<h3 id="loaderconfig">LoaderConfig</h3>
+<p>Model representing the configuration for a loader.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>config_id</code> (optional, str): The unique ID for the loader configuration. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+<li><code>path</code> (str): The path to the directory containing documents to load. Example: “/path/to/documents”.</li>
+<li><code>loader_map</code> (dict): Mapping of file patterns to loader classes. Example: {"<em>.txt": “TextLoader”, "</em>.html": “BSHTMLLoader”}.</li>
+<li><code>loader_kwargs_map</code> (optional, dict): Optional keyword arguments for each loader. Example: {"*.csv": {“delimiter”: “,”}}.</li>
+<li><code>metadata_map</code> (optional, dict): Mapping of file patterns to metadata. Example: {"*.txt": {“author”: “John Doe”}}.</li>
+<li><code>default_metadata</code> (optional, dict): Default metadata to apply to all documents. Example: {“project”: “AI Research”}.</li>
+<li><code>recursive</code> (bool): Whether to load documents recursively from subdirectories. Example: True.</li>
+<li><code>max_depth</code> (optional, int): Maximum depth for recursive loading. Example: 5.</li>
+<li><code>silent_errors</code> (bool): Whether to ignore errors during document loading. Example: True.</li>
+<li><code>load_hidden</code> (bool): Whether to load hidden files. Example: True.</li>
+<li><code>show_progress</code> (bool): Whether to show progress during loading. Example: True.</li>
+<li><code>use_multithreading</code> (bool): Whether to use multithreading for loading. Example: True.</li>
+<li><code>max_concurrency</code> (int): Maximum number of concurrent threads for loading. Example: 8.</li>
+<li><code>exclude</code> (optional, list): List of file patterns to exclude from loading. Example: ["<em>.tmp", "</em>.log"].</li>
+<li><code>sample_size</code> (int): Number of samples to load. If 0, all documents are loaded. Example: 10.</li>
+<li><code>randomize_sample</code> (bool): Whether to randomize the sample. Example: True.</li>
+<li><code>sample_seed</code> (optional, int): Seed for randomization of the sample. Example: 42.</li>
+<li><code>output_store_map</code> (optional, dict): Mapping of file patterns to output stores. Example: {"*.txt": {“collection_name”: “text_files”}}.</li>
+<li><code>default_output_store</code> (optional, dict): Default output store configuration. Example: {“collection_name”: “default_store”}.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+  <span class="token string">"loader_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span> <span class="token string">"*.html"</span><span class="token punctuation">:</span> <span class="token string">"BSHTMLLoader"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"loader_kwargs_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.csv"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"delimiter"</span><span class="token punctuation">:</span> <span class="token string">","</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+  <span class="token string">"silent_errors"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"load_hidden"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"show_progress"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"use_multithreading"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"max_concurrency"</span><span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+  <span class="token string">"exclude"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"*.tmp"</span><span class="token punctuation">,</span> <span class="token string">"*.log"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token string">"sample_size"</span><span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+  <span class="token string">"randomize_sample"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"sample_seed"</span><span class="token punctuation">:</span> <span class="token number">42</span><span class="token punctuation">,</span>
+  <span class="token string">"output_store_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"default_store"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="documentmodel">DocumentModel</h3>
+<p>Model representing a document.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>page_content</code> (str): The content of the document. Example: “This is the content of the document.”</li>
+<li><code>metadata</code> (dict): Metadata associated with the document. Example: {“author”: “John Doe”, “category”: “Research”}.</li>
+<li><code>type</code> (str): Type of the document. Example: “Document”.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="searchconfig">SearchConfig</h3>
+<p>Model representing the criteria for searching configurations.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>path</code> (optional, str): Path to filter configurations. Example: “/path/to/documents”.</li>
+<li><code>loader_type</code> (optional, str): Loader type to filter configurations. Example: “TextLoader”.</li>
+<li><code>recursive</code> (optional, bool): Whether to filter by recursive loading. Example: True.</li>
+<li><code>max_depth</code> (optional, int): Maximum depth to filter configurations. Example: 5.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+  <span class="token string">"loader_type"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span>
+  <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+  <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="configure-loader-1">1. Configure Loader</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8101/configure_loader"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+    <span class="token string">"loader_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span> <span class="token string">"*.html"</span><span class="token punctuation">:</span> <span class="token string">"BSHTMLLoader"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span><span class="token punctuation">,</span>
+    <span class="token string">"silent_errors"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"load_hidden"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"show_progress"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"use_multithreading"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"max_concurrency"</span><span class="token punctuation">:</span> <span class="token number">8</span><span class="token punctuation">,</span>
+    <span class="token string">"exclude"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"*.tmp"</span><span class="token punctuation">,</span> <span class="token string">"*.log"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"sample_size"</span><span class="token punctuation">:</span> <span class="token number">10</span><span class="token punctuation">,</span>
+    <span class="token string">"randomize_sample"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"sample_seed"</span><span class="token punctuation">:</span> <span class="token number">42</span><span class="token punctuation">,</span>
+    <span class="token string">"output_store_map"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"*.txt"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"text_files"</span><span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"default_output_store"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"default_store"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="load-documents-1">2. Load Documents</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8101/load_documents/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-configuration-by-id-1">3. Get Configuration by ID</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8101/get_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-configurations-1">4. List Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8101/list_configs"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="search-configurations-1">5. Search Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8101/search_configs"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"/path/to/documents"</span><span class="token punctuation">,</span>
+    <span class="token string">"loader_type"</span><span class="token punctuation">:</span> <span class="token string">"TextLoader"</span><span class="token punctuation">,</span>
+    <span class="token string">"recursive"</span><span class="token punctuation">:</span> <span class="token boolean">True</span><span class="token punctuation">,</span>
+    <span class="token string">"max_depth"</span><span class="token punctuation">:</span> <span class="token number">5</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-configuration-1">6. Delete Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8101/delete_config/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>
