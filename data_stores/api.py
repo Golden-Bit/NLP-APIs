@@ -3,7 +3,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Query
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
-from workspace.data_stores.utilities.storage import FileStorage
+from data_stores.utilities.storage import FileStorage
 import json
 import os
 import mimetypes
