@@ -4,7 +4,7 @@ import requests
 from typing import List, Dict, Any, Union
 
 # Definizione dell'URL dell'API
-API_URL = "http://localhost:8104"
+API_URL = "http://localhost:8105"
 
 # Funzione per ottenere le configurazioni dei vector store
 def fetch_vector_store_configs() -> List[Dict[str, Any]]:

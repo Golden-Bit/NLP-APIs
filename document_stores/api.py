@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException, Query, Path, Body
+from fastapi import FastAPI, HTTPException, Query, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from langchain_core.documents import Document
 from pymongo import MongoClient, UpdateOne
 import uuid
 
-app = FastAPI()
+router = APIRouter()
 
 # MongoDB connection configuration
 connection_string = "mongodb://localhost:27017/"
@@ -93,7 +93,7 @@ def get_metadata_collection():
     return client[db_name][metadata_collection_name]
 
 
-@app.post("/documents/{collection_name}/", response_model=DocumentModel)
+@router.post("/documents/{collection_name}/", response_model=DocumentModel)
 async def create_document(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         doc: DocumentModel = Body(..., description="The document to create.",
@@ -125,7 +125,7 @@ async def create_document(
     return doc
 
 
-@app.get("/documents/{collection_name}/{doc_id}", response_model=DocumentModel)
+@router.get("/documents/{collection_name}/{doc_id}", response_model=DocumentModel)
 async def get_document(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         doc_id: str = Path(..., description="The ID of the document to retrieve.",
@@ -145,7 +145,7 @@ async def get_document(
     return DocumentModel.from_langchain_document(doc)
 
 
-@app.delete("/documents/{collection_name}/{doc_id}")
+@router.delete("/documents/{collection_name}/{doc_id}")
 async def delete_document(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         doc_id: str = Path(..., description="The ID of the document to delete.",
@@ -162,7 +162,7 @@ async def delete_document(
     return {"detail": "Document deleted successfully"}
 
 
-@app.put("/documents/{collection_name}/{doc_id}", response_model=DocumentModel)
+@router.put("/documents/{collection_name}/{doc_id}", response_model=DocumentModel)
 async def update_document(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         doc_id: str = Path(..., description="The ID of the document to update.",
@@ -192,7 +192,7 @@ async def update_document(
     return doc
 
 
-@app.get("/documents/{collection_name}/", response_model=List[DocumentModel])
+@router.get("/documents/{collection_name}/", response_model=List[DocumentModel])
 async def list_documents(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         prefix: Optional[str] = Query(None, description="Prefix to filter documents.", example="prefix_"),
@@ -212,7 +212,7 @@ async def list_documents(
     return [DocumentModel.from_langchain_document(doc) for doc in documents]
 
 
-@app.get("/search/{collection_name}/", response_model=List[DocumentModel])
+@router.get("/search/{collection_name}/", response_model=List[DocumentModel])
 async def search_documents(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         query: str = Query(..., description="The search query.", example="search_term"),
@@ -239,7 +239,7 @@ async def search_documents(
     return [DocumentModel.from_langchain_document(doc) for doc in documents]
 
 
-@app.post("/collections/{collection_name}/metadata", response_model=CollectionMetadataModel)
+@router.post("/collections/{collection_name}/metadata", response_model=CollectionMetadataModel)
 async def create_collection_metadata(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         metadata: CollectionMetadataModel = Body(..., description="Metadata for the collection.")
@@ -259,7 +259,7 @@ async def create_collection_metadata(
     return metadata
 
 
-@app.put("/collections/{collection_name}/metadata", response_model=CollectionMetadataModel)
+@router.put("/collections/{collection_name}/metadata", response_model=CollectionMetadataModel)
 async def update_collection_metadata(
         collection_name: str = Path(..., description="The name of the collection.", example="example_collection"),
         metadata: CollectionMetadataModel = Body(..., description="Updated metadata for the collection.")
@@ -292,7 +292,7 @@ async def update_collection_metadata(
     return CollectionMetadataModel.from_dict(updated_metadata)
 
 
-@app.get("/collections/metadata", response_model=List[CollectionMetadataModel])
+@router.get("/collections/metadata", response_model=List[CollectionMetadataModel])
 async def list_collections_metadata():
     """
     List all collections and their metadata.
@@ -306,5 +306,9 @@ async def list_collections_metadata():
 
 if __name__ == "__main__":
     import uvicorn
+
+    app = FastAPI()
+
+    app.include_router(router, prefix="/document_stores", tags=["document_stores"])
 
     uvicorn.run(app, host="127.0.0.1", port=8102)

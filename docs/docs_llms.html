@@ -1,0 +1,295 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_llms</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-llm-management-system">API Documentation for LLM Management System</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for configuring, managing, and performing inference with Large Language Models (LLMs). The API supports creating, retrieving, updating, and deleting model configurations, as well as loading and unloading models into memory and performing inference.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8105
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="configure-model">1. Configure Model</h3>
+<h4 id="post-llmconfigure_model"><code>POST /llm/configure_model/</code></h4>
+<p>Configures a new model and stores its configuration.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>model_id</code> (str, required): The unique ID of the model.</li>
+<li><code>model_name</code> (str, required): The name of the model.</li>
+<li><code>model_type</code> (str, required): The type of the model (e.g., ‘openai’, ‘vllm’).</li>
+<li><code>model_kwargs</code> (dict, optional): Additional keyword arguments for model initialization.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the configuration ID of the newly created model configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8000/llm/configure_model/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "model_id": "example_model",
+  "model_name": "gpt-3",
+  "model_type": "openai",
+  "model_kwargs": {
+    "temperature": 0.7
+  }
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="load-model">2. Load Model</h3>
+<h4 id="post-llmload_modelconfig_id"><code>POST /llm/load_model/{config_id}</code></h4>
+<p>Loads a model based on its configuration ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The configuration ID of the model to load.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8000/llm/load_model/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"message"</span><span class="token punctuation">:</span> <span class="token string">"Model loaded successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="unload-model">3. Unload Model</h3>
+<h4 id="post-llmunload_modelmodel_id"><code>POST /llm/unload_model/{model_id}</code></h4>
+<p>Unloads a model from memory.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>model_id</code> (str, required): The ID of the model to unload.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8000/llm/unload_model/example_model"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"message"</span><span class="token punctuation">:</span> <span class="token string">"Model unloaded successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="perform-inference">4. Perform Inference</h3>
+<h4 id="post-llminference"><code>POST /llm/inference/</code></h4>
+<p>Performs inference using a loaded model.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>model_id</code> (str, required): The ID of the model to use for inference.</li>
+<li><code>prompt</code> (str, required): The input prompt for the model.</li>
+<li><code>inference_kwargs</code> (dict, optional): Additional keyword arguments for inference.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the inference response.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8000/llm/inference/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "model_id": "example_model",
+  "prompt": "What is the capital of France?",
+  "inference_kwargs": {
+    "max_tokens": 50
+  }
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"response"</span><span class="token punctuation">:</span> <span class="token string">"The capital of France is Paris."</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-model-configurations">5. List Model Configurations</h3>
+<h4 id="get-llmconfigurations"><code>GET /llm/configurations/</code></h4>
+<p>Lists all stored model configurations.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of all model configurations.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8000/llm/configurations/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_id"</span><span class="token punctuation">:</span> <span class="token string">"example_model"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_name"</span><span class="token punctuation">:</span> <span class="token string">"gpt-3"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_type"</span><span class="token punctuation">:</span> <span class="token string">"openai"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"temperature"</span><span class="token punctuation">:</span> <span class="token number">0.7</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="get-model-configuration">6. Get Model Configuration</h3>
+<h4 id="get-llmconfigurationconfig_id"><code>GET /llm/configuration/{config_id}</code></h4>
+<p>Retrieves a specific model configuration.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The configuration ID to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the model configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8000/llm/configuration/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span><span class="token punctuation">,</span>
+  <span class="token string">"model_id"</span><span class="token punctuation">:</span> <span class="token string">"example_model"</span><span class="token punctuation">,</span>
+  <span class="token string">"model_name"</span><span class="token punctuation">:</span> <span class="token string">"gpt-3"</span><span class="token punctuation">,</span>
+  <span class="token string">"model_type"</span><span class="token punctuation">:</span> <span class="token string">"openai"</span><span class="token punctuation">,</span>
+  <span class="token string">"model_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"temperature"</span><span class="token punctuation">:</span> <span class="token number">0.7</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="delete-model-configuration">7. Delete Model Configuration</h3>
+<h4 id="delete-llmconfigurationconfig_id"><code>DELETE /llm/configuration/{config_id}</code></h4>
+<p>Deletes a specific model configuration.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The configuration ID to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8000/llm/configuration/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-loaded-models">8. List Loaded Models</h3>
+<h4 id="get-llmloaded_models"><code>GET /llm/loaded_models/</code></h4>
+<p>Lists all currently loaded models.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of loaded model IDs.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8000/llm/loaded_models/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token string">"example_model"</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<p><strong>ModelConfigRequest</strong></p>
+<ul>
+<li><code>model_id</code> (str): The unique ID of the model.</li>
+<li><code>model_name</code> (str): The name of the model.</li>
+<li><code>model_type</code> (str): The type of the model (e.g., ‘openai’, ‘vllm’).</li>
+<li><code>model_kwargs</code> (dict): Additional keyword arguments for model initialization.</li>
+</ul>
+<p><strong>InferenceRequest</strong></p>
+<ul>
+<li><code>model_id</code> (str): The ID of the model to use for inference.</li>
+<li><code>prompt</code> (str): The input prompt for the model.</li>
+<li><code>inference_kwargs</code> (dict): Additional keyword arguments for inference.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="configure-model-1">1. Configure Model</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/configure_model/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"model_id"</span><span class="token punctuation">:</span> <span class="token string">"example_model"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_name"</span><span class="token punctuation">:</span> <span class="token string">"gpt-3"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_type"</span><span class="token punctuation">:</span> <span class="token string">"openai"</span><span class="token punctuation">,</span>
+    <span class="token string">"model_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"temperature"</span><span class="token punctuation">:</span> <span class="token number">0.7</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="load-model-1">2. Load Model</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/load_model/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="unload-model-1">3. Unload Model</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/unload_model/example_model"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="perform-inference-1">4. Perform Inference</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/inference/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"model_id"</span><span class="token punctuation">:</span> <span class="token string">"example_model"</span><span class="token punctuation">,</span>
+    <span class="token string">"prompt"</span><span class="token punctuation">:</span> <span class="token string">"What is the capital of France?"</span><span class="token punctuation">,</span>
+    <span class="token string">"inference_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"max_tokens"</span><span class="token punctuation">:</span> <span class="token number">50</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-model-configurations-1">5. List Model Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/configurations/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-model-configuration-1">6. Get Model Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/configuration/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-model-configuration-1">7. Delete Model Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/configuration/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-loaded-models-1">8. List Loaded Models</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8000/llm/loaded_models/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Form, Query, Path, Body
+from fastapi import FastAPI, HTTPException, Form, Query, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import json
@@ -9,9 +9,9 @@ from langchain_core.documents import Document
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.document_loaders.html_bs import BSHTMLLoader
 from langchain_community.document_loaders.text import TextLoader
-from utilities.custom_directory_loader import CustomDirectoryLoader
+from document_loaders.utilities.custom_directory_loader import CustomDirectoryLoader
 
-app = FastAPI()
+router = APIRouter()
 
 ########################################################################################################################
 # MongoDB connection configuration
@@ -147,7 +147,7 @@ def save_document_to_store(collection_name: str, document: DocumentModel):
     return key
 
 
-@app.post("/configure_loader", response_model=str)
+@router.post("/configure_loader", response_model=str)
 async def configure_loader(
         config_id: Optional[str] = Body(None,
                                         description="The unique ID for the loader configuration. If not provided, a new ID will be generated.",
@@ -303,7 +303,7 @@ async def configure_loader(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.post("/load_documents/{config_id}", response_model=List[DocumentModel])
+@router.post("/load_documents/{config_id}", response_model=List[DocumentModel])
 async def load_documents(
         config_id: str = Path(
             ...,
@@ -360,7 +360,7 @@ async def load_documents(
     return document_models
 
 
-@app.get("/get_config/{config_id}", response_model=LoaderConfig)
+@router.get("/get_config/{config_id}", response_model=LoaderConfig)
 async def get_config_by_id(
         config_id: str = Path(...,
                               description="The unique ID of the loader configuration to retrieve.",
@@ -379,7 +379,7 @@ async def get_config_by_id(
     return LoaderConfig(**config["config"])
 
 
-@app.get("/list_configs", response_model=List[LoaderConfig])
+@router.get("/list_configs", response_model=List[LoaderConfig])
 async def list_configs():
     """
     List all existing loader configurations.
@@ -391,7 +391,7 @@ async def list_configs():
     return [LoaderConfig(**config["config"]) for config in configs]
 
 
-@app.post("/search_configs", response_model=List[LoaderConfig])
+@router.post("/search_configs", response_model=List[LoaderConfig])
 async def search_configs(search_params: SearchConfig = Body(...)):
     """
     Search for loader configurations based on advanced criteria.
@@ -413,7 +413,7 @@ async def search_configs(search_params: SearchConfig = Body(...)):
     return [LoaderConfig(**config["config"]) for config in configs]
 
 
-@app.delete("/delete_config/{config_id}", response_model=dict)
+@router.delete("/delete_config/{config_id}", response_model=dict)
 async def delete_config(
         config_id: str = Path(
             ...,
@@ -433,5 +433,9 @@ async def delete_config(
 
 if __name__ == "__main__":
     import uvicorn
+
+    app = FastAPI()
+
+    app.include_router(router, prefix="/document_loaders", tags=["document_loaders"])
 
     uvicorn.run(app, host="127.0.0.1", port=8101)

@@ -1,0 +1,685 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_prompts</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-prompt-management-system">API Documentation for Prompt Management System</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for configuring, managing, and executing prompts and chat prompts. The API supports creating, retrieving, updating, and deleting prompt configurations, as well as loading and executing methods on these configurations.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8107
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="add-prompt-configuration">1. Add Prompt Configuration</h3>
+<h4 id="post-promptsadd_prompt_config"><code>POST /prompts/add_prompt_config/</code></h4>
+<p>Adds a new prompt configuration to the database.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the prompt configuration.</li>
+<li><code>template</code> (str, required): The template string for the prompt.</li>
+<li><code>type</code> (str, required): The type of the prompt (e.g., ‘string’).</li>
+<li><code>variables</code> (list of str, required): The variables used in the prompt template.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message with the configuration ID of the newly created prompt configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/add_prompt_config/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_prompt_config",
+  "template": "Tell me a {adjective} joke about {content}.",
+  "type": "string",
+  "variables": ["adjective", "content"]
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="add-chat-prompt-configuration">2. Add Chat Prompt Configuration</h3>
+<h4 id="post-promptsadd_chat_prompt_config"><code>POST /prompts/add_chat_prompt_config/</code></h4>
+<p>Adds a new chat prompt configuration to the database.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chat prompt configuration.</li>
+<li><code>messages</code> (list of dict, required): The list of messages in the chat prompt.</li>
+<li><code>variables</code> (list of str, required): The variables used in the chat prompt messages.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message with the configuration ID of the newly created chat prompt configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/add_chat_prompt_config/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chat_prompt_config",
+  "messages": [
+    {"role": "system", "content": "You are a helpful AI bot. Your name is {name}."},
+    {"role": "human", "content": "Hello, how are you doing?"},
+    {"role": "ai", "content": "I'</span>m doing well, thanks<span class="token operator">!</span><span class="token string">"},
+    {"</span>role<span class="token string">": "</span>human<span class="token string">", "</span>content<span class="token string">": "</span><span class="token punctuation">{</span>user_input<span class="token punctuation">}</span><span class="token string">"}
+  ],
+  "</span>variables<span class="token string">": ["</span>name<span class="token string">", "</span>user_input"<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>'
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="update-prompt-configuration">3. Update Prompt Configuration</h3>
+<h4 id="put-promptsupdate_prompt_configconfig_id"><code>PUT /prompts/update_prompt_config/{config_id}</code></h4>
+<p>Updates an existing prompt configuration in the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the prompt configuration to update.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the prompt configuration.</li>
+<li><code>template</code> (str, required): The template string for the prompt.</li>
+<li><code>type</code> (str, required): The type of the prompt (e.g., ‘string’).</li>
+<li><code>variables</code> (list of str, required): The variables used in the prompt template.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message with the configuration ID of the updated prompt configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X PUT <span class="token string">"http://localhost:8107/prompts/update_prompt_config/example_prompt_config"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_prompt_config",
+  "template": "Tell me a {adjective} story about {content}.",
+  "type": "string",
+  "variables": ["adjective", "content"]
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="update-chat-prompt-configuration">4. Update Chat Prompt Configuration</h3>
+<h4 id="put-promptsupdate_chat_prompt_configconfig_id"><code>PUT /prompts/update_chat_prompt_config/{config_id}</code></h4>
+<p>Updates an existing chat prompt configuration in the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the chat prompt configuration to update.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chat prompt configuration.</li>
+<li><code>messages</code> (list of dict, required): The list of messages in the chat prompt.</li>
+<li><code>variables</code> (list of str, required): The variables used in the chat prompt messages.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message with the configuration ID of the updated chat prompt configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X PUT <span class="token string">"http://localhost:8107/prompts/update_chat_prompt_config/example_chat_prompt_config"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chat_prompt_config",
+  "messages": [
+    {"role": "system", "content": "You are a helpful AI bot. Your name is {name}."},
+    {"role": "human", "content": "Hello, how are you doing?"},
+    {"role": "ai", "content": "I'</span>m doing well, thanks<span class="token operator">!</span><span class="token string">"},
+    {"</span>role<span class="token string">": "</span>human<span class="token string">", "</span>content<span class="token string">": "</span><span class="token punctuation">{</span>user_input<span class="token punctuation">}</span><span class="token string">"}
+  ],
+  "</span>variables<span class="token string">": ["</span>name<span class="token string">", "</span>user_input"<span class="token punctuation">]</span>
+<span class="token punctuation">}</span>'
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="delete-prompt-configuration">5. Delete Prompt Configuration</h3>
+<h4 id="delete-promptsdelete_prompt_configconfig_id"><code>DELETE /prompts/delete_prompt_config/{config_id}</code></h4>
+<p>Deletes a prompt configuration from the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the prompt configuration to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful deletion.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8107/prompts/delete_prompt_config/example_prompt_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="delete-chat-prompt-configuration">6. Delete Chat Prompt Configuration</h3>
+<h4 id="delete-promptsdelete_chat_prompt_configconfig_id"><code>DELETE /prompts/delete_chat_prompt_config/{config_id}</code></h4>
+<p>Deletes a chat prompt configuration from the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the chat prompt configuration to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful deletion.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8107/prompts/delete_chat_prompt_config/example_chat_prompt_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-prompt-configuration">7. Get Prompt Configuration</h3>
+<h4 id="get-promptsget_prompt_configconfig_id"><code>GET /prompts/get_prompt_config/{config_id}</code></h4>
+<p>Retrieves a prompt configuration from the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the prompt configuration to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the prompt configuration details.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8107/prompts/get_prompt_config/example_prompt_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+  <span class="token string">"template"</span><span class="token punctuation">:</span> <span class="token string">"Tell me a {adjective} joke about {content}."</span><span class="token punctuation">,</span>
+  <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+  <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"adjective"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-chat-prompt-configuration">8. Get Chat Prompt Configuration</h3>
+<h4 id="get-promptsget_chat_prompt_configconfig_id"><code>GET /prompts/get_chat_prompt_config/{config_id}</code></h4>
+<p>Retrieves a chat prompt configuration from the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the chat prompt configuration to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the chat prompt configuration details.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8107/prompts/get_chat_prompt_config/example_chat_prompt_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+  <span class="token string">"messages"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"system"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"You are a helpful AI bot. Your name is {name}."</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"Hello, how are you doing?"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"ai"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"I'm doing well, thanks!"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"{user_input}"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">]</span><span class="token punctuation">,</span>
+  <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">"user_input"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="instantiate-prompt">9. Instantiate Prompt</h3>
+<h4 id="post-promptsget_prompt"><code>POST /prompts/get_prompt/</code></h4>
+<p>Instantiates a prompt based on its configuration and provided variables.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the prompt configuration.</li>
+<li><code>variables</code> (dict of str to Any, required): The variables to format the prompt template.</li>
+<li><code>is_partial</code> (bool, optional): Whether to perform partial formatting.</li>
+<li><code>is_format</code> (bool, optional): Whether to perform full formatting.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the instantiated prompt.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/get_prompt/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_prompt_config",
+  "variables": {"adjective": "funny", "content": "chickens"},
+  "is_partial": false,
+  "is_format": true
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"prompt"</span><span class="token punctuation">:</span> "Tell
+
+ me a funny joke about chickens<span class="token punctuation">.</span>"
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="instantiate-chat-prompt">10. Instantiate Chat Prompt</h3>
+<h4 id="post-promptsget_chat_prompt"><code>POST /prompts/get_chat_prompt/</code></h4>
+<p>Instantiates a chat prompt based on its configuration and provided variables.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chat prompt configuration.</li>
+<li><code>variables</code> (dict of str to Any, required): The variables to format the chat prompt template.</li>
+<li><code>is_partial</code> (bool, optional): Whether to perform partial formatting.</li>
+<li><code>is_format</code> (bool, optional): Whether to perform full formatting.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the instantiated chat prompt.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/get_chat_prompt/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chat_prompt_config",
+  "variables": {"name": "Bob", "user_input": "What is your name?"},
+  "is_partial": false,
+  "is_format": true
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"chat_prompt"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"system"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"You are a helpful AI bot. Your name is Bob."</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"Hello, how are you doing?"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"ai"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"I'm doing well, thanks!"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"What is your name?"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-prompt-configurations">11. List Prompt Configurations</h3>
+<h4 id="get-promptslist_prompt_configs"><code>GET /prompts/list_prompt_configs/</code></h4>
+<p>Lists all prompt configurations from the database.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of prompt configurations.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8107/prompts/list_prompt_configs/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"template"</span><span class="token punctuation">:</span> <span class="token string">"Tell me a {adjective} joke about {content}."</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"adjective"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="list-chat-prompt-configurations">12. List Chat Prompt Configurations</h3>
+<h4 id="get-promptslist_chat_prompt_configs"><code>GET /prompts/list_chat_prompt_configs/</code></h4>
+<p>Lists all chat prompt configurations from the database.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of chat prompt configurations.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8107/prompts/list_chat_prompt_configs/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"messages"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+      <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"system"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"You are a helpful AI bot. Your name is {name}."</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"Hello, how are you doing?"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"ai"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"I'm doing well, thanks!"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+      <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"{user_input}"</span><span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">"user_input"</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="execute-method-on-prompt">13. Execute Method on Prompt</h3>
+<h4 id="post-promptsexecute_prompt_method"><code>POST /prompts/execute_prompt_method/</code></h4>
+<p>Executes a method on a loaded prompt instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the prompt configuration.</li>
+<li><code>method_name</code> (str, required): The name of the method to call on the prompt.</li>
+<li><code>args</code> (list, optional): The positional arguments for the method (if any).</li>
+<li><code>kwargs</code> (dict, optional): The keyword arguments for the method (if any).</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the result of the method execution.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/execute_prompt_method/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_prompt_config",
+  "method_name": "some_method",
+  "args": [],
+  "kwargs": {"param1": "value1", "param2": "value2"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"result"</span><span class="token punctuation">:</span> <span class="token string">"Method executed successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-attribute-of-prompt">14. Get Attribute of Prompt</h3>
+<h4 id="post-promptsget_prompt_attribute"><code>POST /prompts/get_prompt_attribute/</code></h4>
+<p>Gets an attribute of a loaded prompt instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the prompt configuration.</li>
+<li><code>attribute_name</code> (str, required): The name of the attribute to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the value of the specified attribute.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/get_prompt_attribute/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_prompt_config",
+  "attribute_name": "attribute_name"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"attribute"</span><span class="token punctuation">:</span> <span class="token string">"Attribute value"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="execute-method-on-chat-prompt">15. Execute Method on Chat Prompt</h3>
+<h4 id="post-promptsexecute_chat_prompt_method"><code>POST /prompts/execute_chat_prompt_method/</code></h4>
+<p>Executes a method on a loaded chat prompt instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chat prompt configuration.</li>
+<li><code>method_name</code> (str, required): The name of the method to call on the chat prompt.</li>
+<li><code>args</code> (list, optional): The positional arguments for the method (if any).</li>
+<li><code>kwargs</code> (dict, optional): The keyword arguments for the method (if any).</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the result of the method execution.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/execute_chat_prompt_method/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chat_prompt_config",
+  "method_name": "some_method",
+  "args": [],
+  "kwargs": {"param1": "value1", "param2": "value2"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"result"</span><span class="token punctuation">:</span> <span class="token string">"Method executed successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-attribute-of-chat-prompt">16. Get Attribute of Chat Prompt</h3>
+<h4 id="post-promptsget_chat_prompt_attribute"><code>POST /prompts/get_chat_prompt_attribute/</code></h4>
+<p>Gets an attribute of a loaded chat prompt instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chat prompt configuration.</li>
+<li><code>attribute_name</code> (str, required): The name of the attribute to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the value of the specified attribute.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8107/prompts/get_chat_prompt_attribute/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chat_prompt_config",
+  "attribute_name": "attribute_name"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"attribute"</span><span class="token punctuation">:</span> <span class="token string">"Attribute value"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<p><strong>PromptConfig</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the prompt configuration.</li>
+<li><code>template</code> (str): The template string for the prompt.</li>
+<li><code>type</code> (str): The type of the prompt (e.g., ‘string’).</li>
+<li><code>variables</code> (list of str): The variables used in the prompt template.</li>
+</ul>
+<p><strong>ChatPromptConfig</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the chat prompt configuration.</li>
+<li><code>messages</code> (list of dict): The list of messages in the chat prompt.</li>
+<li><code>variables</code> (list of str): The variables used in the chat prompt messages.</li>
+</ul>
+<p><strong>PromptRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the prompt configuration.</li>
+<li><code>variables</code> (dict of str to Any): The variables to format the prompt template.</li>
+<li><code>is_partial</code> (bool): Whether to perform partial formatting.</li>
+<li><code>is_format</code> (bool): Whether to perform full formatting.</li>
+</ul>
+<p><strong>ChatPromptRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the chat prompt configuration.</li>
+<li><code>variables</code> (dict of str to Any): The variables to format the chat prompt template.</li>
+<li><code>is_partial</code> (bool): Whether to perform partial formatting.</li>
+<li><code>is_format</code> (bool): Whether to perform full formatting.</li>
+</ul>
+<p><strong>ExecutePromptMethodRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the prompt configuration.</li>
+<li><code>method_name</code> (str): The name of the method to call on the prompt.</li>
+<li><code>args</code> (list): The positional arguments for the method (if any).</li>
+<li><code>kwargs</code> (dict): The keyword arguments for the method (if any).</li>
+</ul>
+<p><strong>ExecuteChatPromptMethodRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the chat prompt configuration.</li>
+<li><code>method_name</code> (str): The name of the method to call on the chat prompt.</li>
+<li><code>args</code> (list): The positional arguments for the method (if any).</li>
+<li><code>kwargs</code> (dict): The keyword arguments for the method (if any).</li>
+</ul>
+<p><strong>GetPromptAttributeRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the prompt configuration.</li>
+<li><code>attribute_name</code> (str): The name of the attribute to retrieve.</li>
+</ul>
+<p><strong>GetChatPromptAttributeRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the chat prompt configuration.</li>
+<li><code>attribute_name</code> (str): The name of the attribute to retrieve.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="add-prompt-configuration-1">1. Add Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span>
+
+ <span class="token string">"http://localhost:8107/prompts/add_prompt_config/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"template"</span><span class="token punctuation">:</span> <span class="token string">"Tell me a {adjective} joke about {content}."</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"adjective"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="add-chat-prompt-configuration-1">2. Add Chat Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/add_chat_prompt_config/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"messages"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"system"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"You are a helpful AI bot. Your name is {name}."</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"Hello, how are you doing?"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"ai"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"I'm doing well, thanks!"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"{user_input}"</span><span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">"user_input"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="update-prompt-configuration-1">3. Update Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/update_prompt_config/example_prompt_config"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"template"</span><span class="token punctuation">:</span> <span class="token string">"Tell me a {adjective} story about {content}."</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"string"</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"adjective"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>put<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="update-chat-prompt-configuration-1">4. Update Chat Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/update_chat_prompt_config/example_chat_prompt_config"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"messages"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"system"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"You are a helpful AI bot. Your name is {name}."</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"Hello, how are you doing?"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"ai"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"I'm doing well, thanks!"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"human"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"{user_input}"</span><span class="token punctuation">}</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"name"</span><span class="token punctuation">,</span> <span class="token string">"user_input"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>put<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-prompt-configuration-1">5. Delete Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/delete_prompt_config/example_prompt_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-chat-prompt-configuration-1">6. Delete Chat Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/delete_chat_prompt_config/example_chat_prompt_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-prompt-configuration-1">7. Get Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/get_prompt_config/example_prompt_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-chat-prompt-configuration-1">8. Get Chat Prompt Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/get_chat_prompt_config/example_chat_prompt_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="instantiate-prompt-1">9. Instantiate Prompt</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/get_prompt/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"adjective"</span><span class="token punctuation">:</span> <span class="token string">"funny"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"chickens"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"is_partial"</span><span class="token punctuation">:</span> false<span class="token punctuation">,</span>
+    <span class="token string">"is_format"</span><span class="token punctuation">:</span> true
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="instantiate-chat-prompt-1">10. Instantiate Chat Prompt</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/get_chat_prompt/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"variables"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"Bob"</span><span class="token punctuation">,</span> <span class="token string">"user_input"</span><span class="token punctuation">:</span> <span class="token string">"What is your name?"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"is_partial"</span><span class="token punctuation">:</span> false<span class="token punctuation">,</span>
+    <span class="token string">"is_format"</span><span class="token punctuation">:</span> true
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-prompt-configurations-1">11. List Prompt Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/list_prompt_configs/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-chat-prompt-configurations-1">12. List Chat Prompt Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/list_chat_prompt_configs/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="execute-method-on-prompt-1">13. Execute Method on Prompt</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/execute_prompt_method/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"method_name"</span><span class="token punctuation">:</span> <span class="token string">"some_method"</span><span class="token punctuation">,</span>
+    <span class="token string">"args"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"param1"</span><span class="token punctuation">:</span> <span class="token string">"value1"</span><span class="token punctuation">,</span> <span class="token string">"param2"</span><span class="token punctuation">:</span> <span class="token string">"value2"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-attribute-of-prompt-1">14. Get Attribute of Prompt</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/get_prompt_attribute/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"attribute_name"</span><span class="token punctuation">:</span> <span class="token string">"attribute_name"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="execute-method-on-chat-prompt-1">15. Execute Method on Chat Prompt</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/execute_chat_prompt_method/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"method_name"</span><span class="token punctuation">:</span> <span class="token string">"some_method"</span><span class="token punctuation">,</span>
+    <span class="token string">"args"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"param1"</span><span class="token punctuation">:</span> <span class="token string">"value1"</span><span class="token punctuation">,</span> <span class="token string">"param2"</span><span class="token punctuation">:</span> <span class="token string">"value2"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-attribute-of-chat-prompt-1">16. Get Attribute of Chat Prompt</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8107/prompts/get_chat_prompt_attribute/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chat_prompt_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"attribute_name"</span><span class="token punctuation">:</span> <span class="token string">"attribute_name"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Path, Body, Query
+from fastapi import FastAPI, HTTPException, Path, Body, Query, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional, Union
 import uuid
@@ -10,7 +10,7 @@ from langchain_text_splitters import CharacterTextSplitter, RecursiveCharacterTe
 
 from document_transformers.utilities.document_transformer_map import DocumentTransformerMap
 
-app = FastAPI()
+router = APIRouter()
 
 # MongoDB connection configuration
 mongo_connection_string = "mongodb://localhost:27017/"
@@ -134,7 +134,7 @@ def get_transformer_class(name: str) -> type:
     return available_transformers.get(name)
 
 # Transformer Config Endpoints
-@app.post("/configure_transformer", response_model=str)
+@router.post("/configure_transformer", response_model=str)
 async def configure_transformer(
         config_id: Optional[str] = Body(None, description="The unique ID for the transformer configuration. If not provided, a new ID will be generated."),
         transformer: str = Body(..., description="The transformer class name."),
@@ -186,7 +186,7 @@ async def configure_transformer(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/list_transformer_configs", response_model=List[TransformerConfig])
+@router.get("/list_transformer_configs", response_model=List[TransformerConfig])
 async def list_transformer_configs(skip: int = Query(0, description="Number of records to skip"), limit: Optional[int] = Query(0, description="Maximum number of records to return")):
     """
     List all existing transformer configurations.
@@ -197,7 +197,7 @@ async def list_transformer_configs(skip: int = Query(0, description="Number of r
     configs = mongo_client[mongo_db_name][transformer_collection_name].find().skip(skip).limit(limit)
     return [TransformerConfig(**config) for config in configs]
 
-@app.get("/get_transformer_config/{config_id}", response_model=TransformerConfig)
+@router.get("/get_transformer_config/{config_id}", response_model=TransformerConfig)
 async def get_transformer_config(
         config_id: str = Path(..., description="The unique ID of the transformer configuration to retrieve.")
 ):
@@ -211,7 +211,7 @@ async def get_transformer_config(
         raise HTTPException(status_code=404, detail="Configuration not found")
     return TransformerConfig(**config)
 
-@app.post("/search_transformer_configs", response_model=List[TransformerConfig])
+@router.post("/search_transformer_configs", response_model=List[TransformerConfig])
 async def search_transformer_configs(search_params: SearchConfig = Body(...)):
     """
     Search for transformer configurations based on advanced criteria.
@@ -235,7 +235,7 @@ async def search_transformer_configs(search_params: SearchConfig = Body(...)):
     configs = mongo_client[mongo_db_name][transformer_collection_name].find(query).skip(search_params.skip).limit(search_params.limit)
     return [TransformerConfig(**config) for config in configs]
 
-@app.delete("/delete_transformer_config/{config_id}", response_model=dict)
+@router.delete("/delete_transformer_config/{config_id}", response_model=dict)
 async def delete_transformer_config(
         config_id: str = Path(..., description="The unique ID of the transformer configuration to delete.")
 ):
@@ -250,7 +250,7 @@ async def delete_transformer_config(
     return {"detail": "Configuration deleted successfully"}
 
 # Transformer Map Config Endpoints
-@app.post("/configure_transformer_map", response_model=str)
+@router.post("/configure_transformer_map", response_model=str)
 async def configure_transformer_map(
         config_id: Optional[str] = Body(None, description="The unique ID for the transformer map configuration. If not provided, a new ID will be generated."),
         transformer_map: Dict[str, Union[TransformerConfig, str]] = Body(..., description="Mapping of queries to transformer configurations."),
@@ -323,7 +323,7 @@ async def configure_transformer_map(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/get_transformer_map_config/{config_id}", response_model=TransformerMapConfig)
+@router.get("/get_transformer_map_config/{config_id}", response_model=TransformerMapConfig)
 async def get_transformer_map_config(
         config_id: str = Path(..., description="The unique ID of the transformer map configuration to retrieve.")
 ):
@@ -337,7 +337,7 @@ async def get_transformer_map_config(
         raise HTTPException(status_code=404, detail="Configuration not found")
     return TransformerMapConfig(**config)
 
-@app.post("/transform_documents/{config_id}", response_model=List[DocumentModel])
+@router.post("/transform_documents/{config_id}", response_model=List[DocumentModel])
 async def transform_documents(
         config_id: str = Path(..., description="The unique ID of the transformer map configuration."),
         documents: List[DocumentModel] = Body(..., description="List of documents to be transformed.")
@@ -393,7 +393,7 @@ async def transform_documents(
 
     return document_models
 
-@app.post("/transform_documents_from_store/{config_id}", response_model=List[DocumentModel])
+@router.post("/transform_documents_from_store/{config_id}", response_model=List[DocumentModel])
 async def transform_documents_from_store(
         config_id: str = Path(..., description="The unique ID of the transformer map configuration."),
         input_store: Dict[str, Any] = Body(..., description="Input store configuration.")
@@ -446,7 +446,7 @@ async def transform_documents_from_store(
 
     return document_models
 
-@app.get("/list_transformer_map_configs", response_model=List[TransformerMapConfig])
+@router.get("/list_transformer_map_configs", response_model=List[TransformerMapConfig])
 async def list_transformer_map_configs(skip: int = Query(0, description="Number of records to skip"), limit: Optional[int] = Query(0, description="Maximum number of records to return")):
     """
     List all existing transformer map configurations.
@@ -457,7 +457,7 @@ async def list_transformer_map_configs(skip: int = Query(0, description="Number 
     configs = mongo_client[mongo_db_name][transformer_map_collection_name].find().skip(skip).limit(limit)
     return [TransformerMapConfig(**config) for config in configs]
 
-@app.post("/search_transformer_map_configs", response_model=List[TransformerMapConfig])
+@router.post("/search_transformer_map_configs", response_model=List[TransformerMapConfig])
 async def search_transformer_map_configs(search_params: SearchConfig = Body(...)):
     """
     Search for transformer map configurations based on advanced criteria.
@@ -481,7 +481,7 @@ async def search_transformer_map_configs(search_params: SearchConfig = Body(...)
     configs = mongo_client[mongo_db_name][transformer_map_collection_name].find(query).skip(search_params.skip).limit(search_params.limit)
     return [TransformerMapConfig(**config) for config in configs]
 
-@app.delete("/delete_transformer_map_config/{config_id}", response_model=dict)
+@router.delete("/delete_transformer_map_config/{config_id}", response_model=dict)
 async def delete_transformer_map_config(
         config_id: str = Path(..., description="The unique ID of the transformer map configuration to delete.")
 ):
@@ -497,5 +497,9 @@ async def delete_transformer_map_config(
 
 if __name__ == "__main__":
     import uvicorn
+
+    app = FastAPI()
+
+    app.include_router(router, prefix="/document_transformers", tags=["document_transformers"])
 
     uvicorn.run(app, host="127.0.0.1", port=8103)

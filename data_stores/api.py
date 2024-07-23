@@ -1,5 +1,5 @@
 from pathlib import Path
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Query
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form, Query, APIRouter
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
@@ -11,11 +11,11 @@ from PyPDF2 import PdfFileReader
 from io import BytesIO
 from docx import Document as DocxDocument
 
-app = FastAPI()
+router = APIRouter()
 
 # Initialize the root path for storing files
 #root_path = Path.cwd() / "workspace" / "data_stores" / "data"
-root_path = Path.cwd() / "data"
+root_path = Path(str(Path.cwd()).replace("chains", "data_stores")) / "data"
 file_storage = FileStorage(root_path)
 
 
@@ -64,7 +64,7 @@ class DirectoryMetadata(BaseModel):
         }
 
 
-@app.post("/create_directory", response_model=DirectoryMetadata,
+@router.post("/create_directory", response_model=DirectoryMetadata,
           responses={400: {"description": "Bad Request"}, 500: {"description": "Internal Server Error"}})
 async def create_directory(
         directory: str = Form(..., description="The path to the directory to create."),
@@ -85,7 +85,7 @@ async def create_directory(
     return DirectoryMetadata(path=directory, custom_metadata=custom_metadata)
 
 
-@app.delete("/delete_directory/{directory_id:path}",
+@router.delete("/delete_directory/{directory_id:path}",
             responses={404: {"description": "Directory Not Found"}, 400: {"description": "Bad Request"},
                        500: {"description": "Internal Server Error"}})
 async def delete_directory(directory_id: str):
@@ -109,7 +109,7 @@ async def delete_directory(directory_id: str):
     return {"detail": "Directory deleted successfully"}
 
 
-@app.post("/upload", response_model=FileMetadata,
+@router.post("/upload", response_model=FileMetadata,
           responses={400: {"description": "Bad Request"}, 500: {"description": "Internal Server Error"}})
 async def upload_file(
         file: UploadFile = File(..., description="The file to upload."),
@@ -139,7 +139,7 @@ async def upload_file(
     return metadata
 
 
-@app.post("/upload/multiple", response_model=Dict[str, List[str]],
+@router.post("/upload/multiple", response_model=Dict[str, List[str]],
           responses={400: {"description": "Bad Request"}, 500: {"description": "Internal Server Error"}})
 async def upload_multiple_files(
         files: List[UploadFile] = File(..., description="The list of files to upload."),
@@ -171,7 +171,7 @@ async def upload_multiple_files(
     return {"file_ids": ids}
 
 
-@app.put("/update/{file_id:path}", response_model=FileMetadata,
+@router.put("/update/{file_id:path}", response_model=FileMetadata,
          responses={404: {"description": "File Not Found"}, 400: {"description": "Bad Request"},
                     500: {"description": "Internal Server Error"}})
 async def update_file(
@@ -195,7 +195,7 @@ async def update_file(
     return metadata
 
 
-@app.post("/file/metadata",
+@router.post("/file/metadata",
           response_model=FileMetadata,
           responses={
               400: {"description": "Bad Request"},
@@ -222,7 +222,7 @@ async def save_file_metadata(
     return metadata
 
 
-@app.delete("/delete/{file_id:path}",
+@router.delete("/delete/{file_id:path}",
             responses={404: {"description": "File Not Found"}, 400: {"description": "Bad Request"},
                        500: {"description": "Internal Server Error"}})
 async def delete_file(file_id: str):
@@ -236,7 +236,7 @@ async def delete_file(file_id: str):
     return {"detail": "File deleted successfully"}
 
 
-@app.get("/file/{file_id:path}", response_class=FileResponse,
+@router.get("/file/{file_id:path}", response_class=FileResponse,
          responses={404: {"description": "File Not Found"}, 400: {"description": "Bad Request"},
                     500: {"description": "Internal Server Error"}})
 async def get_file(file_id: str):
@@ -250,7 +250,7 @@ async def get_file(file_id: str):
     return FileResponse(path=os.path.join(file_storage.store.root_path, file_id), filename=file_id)
 
 
-@app.get("/files", response_model=List[FileMetadata],
+@router.get("/files", response_model=List[FileMetadata],
          responses={400: {"description": "Bad Request"}, 500: {"description": "Internal Server Error"}})
 async def list_files(
         subdir: Optional[str] = Query(None, description="The subdirectory to list files from.")
@@ -264,7 +264,7 @@ async def list_files(
     return metadata_list
 
 
-@app.get("/metadata/{file_id:path}", response_model=FileMetadata,
+@router.get("/metadata/{file_id:path}", response_model=FileMetadata,
          responses={404: {"description": "File Not Found"}, 400: {"description": "Bad Request"},
                     500: {"description": "Internal Server Error"}})
 async def get_file_metadata(file_id: str):
@@ -278,7 +278,7 @@ async def get_file_metadata(file_id: str):
     return metadata
 
 
-@app.get("/versions/{file_id:path}",
+@router.get("/versions/{file_id:path}",
          responses={404: {"description": "File Not Found"}, 400: {"description": "Bad Request"},
                     500: {"description": "Internal Server Error"}})
 async def get_file_versions(file_id: str):
@@ -289,7 +289,7 @@ async def get_file_versions(file_id: str):
     return {"detail": "Versioning not implemented yet"}
 
 
-@app.get("/directories", response_model=List[DirectoryMetadata],
+@router.get("/directories", response_model=List[DirectoryMetadata],
          responses={400: {"description": "Bad Request"}, 500: {"description": "Internal Server Error"}})
 async def list_directories():
     """
@@ -301,7 +301,7 @@ async def list_directories():
     return metadata_list
 
 
-@app.post("/directory/metadata",
+@router.post("/directory/metadata",
           response_model=DirectoryMetadata,
           responses={
               400: {"description": "Bad Request"},
@@ -329,7 +329,7 @@ async def save_directory_metadata(
     return DirectoryMetadata(path=directory, custom_metadata=custom_metadata)
 
 
-@app.get("/search/files",
+@router.get("/search/files",
          response_model=List[FileMetadata],
          responses={
              400: {"description": "Bad Request"},
@@ -352,7 +352,7 @@ async def search_files(
     return metadata_list
 
 
-@app.get("/filter/files",
+@router.get("/filter/files",
          response_model=List[FileMetadata],
          responses={
              400: {"description": "Bad Request"},
@@ -377,7 +377,7 @@ async def filter_files(
     return metadata_list
 
 
-@app.get("/view/{file_id:path}", response_class=HTMLResponse,
+@router.get("/view/{file_id:path}", response_class=HTMLResponse,
          responses={404: {"description": "File Not Found"}, 400: {"description": "Bad Request"},
                     500: {"description": "Internal Server Error"}})
 async def view_file(file_id: str):
@@ -417,7 +417,7 @@ async def view_file(file_id: str):
         raise HTTPException(status_code=400, detail="File type not supported for viewing")
 
 
-@app.get("/download/{file_id:path}",
+@router.get("/download/{file_id:path}",
          response_class=FileResponse,
          responses={
              404: {"description": "File Not Found"},
@@ -440,5 +440,9 @@ async def download_file(file_id: str):
 
 if __name__ == "__main__":
     import uvicorn
+
+    app = FastAPI()
+
+    app.include_router(router, prefix="/data_stores", tags=["data_stores"])
 
     uvicorn.run(app, host="127.0.0.1", port=8100)

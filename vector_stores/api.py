@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Path, Body, Query
+from fastapi import FastAPI, HTTPException, Path, Body, Query, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional, Tuple
 from pymongo import MongoClient
@@ -7,7 +7,7 @@ from langchain_core.documents import Document
 from langchain_community.vectorstores import Chroma, ElasticsearchStore, ElasticVectorSearch, FAISS
 from langchain_community.embeddings import OpenAIEmbeddings
 
-app = FastAPI()
+router = APIRouter()
 
 # MongoDB connection configuration
 connection_string = "mongodb://localhost:27017/"
@@ -35,6 +35,18 @@ VECTOR_STORE_CLASSES = {
 EMBEDDINGS_MODELS = {
     "OpenAIEmbeddings": OpenAIEmbeddings
 }
+
+
+class ExecuteMethodRequest(BaseModel):
+    store_id: str = Field(..., example="abcd1234-efgh-5678-ijkl-9012mnop3456", title="Store ID", description="The unique ID of the vector store instance.")
+    method_name: str = Field(..., example="persist", title="Method Name", description="The name of the method to call on the vector store.")
+    args: Optional[List[Any]] = Field(default_factory=list, example=[], title="Arguments", description="The positional arguments for the method (if any).")
+    kwargs: Optional[Dict[str, Any]] = Field(default_factory=dict, example={"param1": "value1", "param2": "value2"}, title="Keyword Arguments", description="The keyword arguments for the method (if any).")
+
+
+class GetAttributeRequest(BaseModel):
+    store_id: str = Field(..., example="abcd1234-efgh-5678-ijkl-9012mnop3456", title="Store ID", description="The unique ID of the vector store instance.")
+    attribute_name: str = Field(..., example="attribute_name", title="Attribute Name", description="The name of the attribute to get.")
 
 
 class VectorStoreConfigModel(BaseModel):
@@ -122,7 +134,7 @@ def get_document_collection(collection_name: str):
     return client[document_db_name][collection_name]
 
 
-@app.post("/vector_store/configure", response_model=VectorStoreConfigModel)
+@router.post("/vector_store/configure", response_model=VectorStoreConfigModel)
 async def configure_vector_store(
     config_id: Optional[str] = Body(None, description="The unique ID for the vector store configuration.",
                                     example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
@@ -171,7 +183,7 @@ async def configure_vector_store(
     return VectorStoreConfigModel(**config)
 
 
-@app.delete("/vector_store/configure/{config_id}", response_model=dict)
+@router.delete("/vector_store/configure/{config_id}", response_model=dict)
 async def delete_vector_store_config(
     config_id: str = Path(..., description="The unique ID of the vector store configuration to delete.", example="abcd1234-efgh-5678-ijkl-9012mnop3456")
 ):
@@ -188,7 +200,7 @@ async def delete_vector_store_config(
     return {"detail": "Configuration deleted successfully"}
 
 
-@app.put("/vector_store/configure/{config_id}", response_model=VectorStoreConfigModel)
+@router.put("/vector_store/configure/{config_id}", response_model=VectorStoreConfigModel)
 async def update_vector_store_config(
     config_id: str = Path(..., description="The unique ID of the vector store configuration to update.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     store_id: Optional[str] = Body(None, description="The unique ID for the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
@@ -228,7 +240,7 @@ async def update_vector_store_config(
     return VectorStoreConfigModel(**updated_config)
 
 
-@app.get("/vector_store/configurations", response_model=List[VectorStoreConfigModel])
+@router.get("/vector_store/configurations", response_model=List[VectorStoreConfigModel])
 async def list_vector_store_configs():
     """
     List all vector store configurations.
@@ -239,7 +251,7 @@ async def list_vector_store_configs():
     return [VectorStoreConfigModel(**config["config"]) for config in configs]
 
 
-@app.post("/vector_store/load/{config_id}", response_model=dict)
+@router.post("/vector_store/load/{config_id}", response_model=dict)
 async def load_vector_store(
     config_id: str = Path(..., description="The unique ID of the vector store configuration to load.", example="abcd1234-efgh-5678-ijkl-9012mnop3456")
 ):
@@ -282,7 +294,7 @@ async def load_vector_store(
     return {"detail": f"Vector store {store_id} loaded successfully"}
 
 
-@app.post("/vector_store/offload/{store_id}", response_model=dict)
+@router.post("/vector_store/offload/{store_id}", response_model=dict)
 async def offload_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store to offload from memory.", example="abcd1234-efgh-5678-ijkl-9012mnop3456")
 ):
@@ -301,7 +313,7 @@ async def offload_vector_store(
     return {"detail": f"Vector store {store_id} offloaded successfully"}
 
 
-@app.get("/vector_store/loaded_store_ids", response_model=List[str])
+@router.get("/vector_store/loaded_store_ids", response_model=List[str])
 async def get_loaded_store_ids():
     """
     Get IDs of currently loaded vector stores.
@@ -311,7 +323,7 @@ async def get_loaded_store_ids():
     return list(vector_stores.keys())
 
 
-@app.post("/vector_store/documents/{store_id}", response_model=dict)
+@router.post("/vector_store/documents/{store_id}", response_model=dict)
 async def add_documents_to_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     documents: List[DocumentModel] = Body(..., description="The documents to add to the vector store.", example=[
@@ -336,7 +348,7 @@ async def add_documents_to_vector_store(
     return {"detail": f"Documents added to vector store {store_id} successfully"}
 
 
-@app.post("/vector_store/texts/{store_id}", response_model=dict)
+@router.post("/vector_store/texts/{store_id}", response_model=dict)
 async def add_texts_to_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     texts: List[str] = Body(..., description="The texts to add to the vector store.", example=["Text content 1", "Text content 2"]),
@@ -360,7 +372,7 @@ async def add_texts_to_vector_store(
     return {"detail": f"Texts added to vector store {store_id} successfully"}
 
 
-@app.delete("/vector_store/documents/{store_id}", response_model=dict)
+@router.delete("/vector_store/documents/{store_id}", response_model=dict)
 async def remove_documents_from_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     ids: List[str] = Body(..., description="The IDs of the documents to remove from the vector store.", example=["id1", "id2"])
@@ -383,7 +395,7 @@ async def remove_documents_from_vector_store(
     return {"detail": f"Documents removed from vector store {store_id} successfully"}
 
 
-@app.post("/vector_store/method/{store_id}", response_model=dict)
+@router.post("/vector_store/method/{store_id}", response_model=dict)
 async def execute_vector_store_method(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     method_name: str = Body(..., description="The name of the method to call.", example="persist"),
@@ -410,7 +422,7 @@ async def execute_vector_store_method(
     return {"detail": f"Method {method_name} executed successfully on vector store {store_id}", "result": result}
 
 
-@app.post("/vector_store/add_documents_from_store/{store_id}", response_model=dict)
+@router.post("/vector_store/add_documents_from_store/{store_id}", response_model=dict)
 async def add_documents_from_document_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     document_collection: str = Query(..., description="The name of the document collection in the document store.", example="my_document_collection")
@@ -438,7 +450,7 @@ async def add_documents_from_document_store(
     return {"detail": f"Documents from collection {document_collection} added to vector store {store_id} successfully"}
 
 
-@app.put("/vector_store/documents/{store_id}/{document_id}", response_model=dict)
+@router.put("/vector_store/documents/{store_id}/{document_id}", response_model=dict)
 async def update_document_in_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     document_id: str = Path(..., description="The unique ID of the document to update.", example="doc1234"),
@@ -463,7 +475,7 @@ async def update_document_in_vector_store(
     return {"detail": f"Document {document_id} updated in vector store {store_id} successfully"}
 
 
-@app.post("/vector_store/search/{store_id}", response_model=List[DocumentModel | Tuple[DocumentModel, float]])
+@router.post("/vector_store/search/{store_id}", response_model=List[DocumentModel | Tuple[DocumentModel, float]])
 async def search_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     query: str = Body(..., description="The search query.", example="example query"),
@@ -496,7 +508,48 @@ async def search_vector_store(
     return [DocumentModel.from_langchain_document(result) for result in results]
 
 
-@app.post("/vector_store/filter/{store_id}", response_model=List[DocumentModel])
+@router.post("/vector_store/retrieve/{store_id}", response_model=List[DocumentModel | Tuple[DocumentModel, float]])
+async def vector_store_as_retriever(
+        store_id: str = Path(..., description="The unique ID of the vector store instance.",
+                             example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
+        query: str = Body(..., description="The search query.", example="example query"),
+        search_type: Optional[str] = Body("similarity",
+                                          description="The type of search to perform. Supported types: 'similarity', 'mmr', 'similarity_score_threshold'",
+                                          example="similarity"),
+        search_kwargs: Dict[str, Any] = Body(default_factory=dict,
+                                             description="Additional keyword arguments for the search method.",
+                                             example={"k": 4})
+):
+    """
+    Retrieve documents from a vector store using the retriever method.
+
+    This endpoint allows retrieving documents from a vector store using the specified search query.
+
+    Returns a list of documents that match the search criteria.
+    """
+    if store_id not in vector_stores:
+        raise HTTPException(status_code=404, detail="Vector store not found in memory")
+
+    vector_store_instance = vector_stores[store_id]
+
+    # Ensure the vector store has the as_retriever method
+    if not hasattr(vector_store_instance, "as_retriever"):
+        raise HTTPException(status_code=400,
+                            detail=f"Vector store class {type(vector_store_instance).__name__} does not support retriever method")
+
+    # Initialize the retriever with the provided search type and search kwargs
+    retriever = vector_store_instance.as_retriever(search_type=search_type, search_kwargs=search_kwargs)
+
+    # Perform the retrieval
+    results = retriever.retrieve(query)
+
+    if search_type == "similarity_score_threshold":
+        return [(DocumentModel.from_langchain_document(result[0]), result[1]) for result in results]
+
+    return [DocumentModel.from_langchain_document(result) for result in results]
+
+
+@router.post("/vector_store/filter/{store_id}", response_model=List[DocumentModel])
 async def filter_vector_store(
     store_id: str = Path(..., description="The unique ID of the vector store instance.", example="abcd1234-efgh-5678-ijkl-9012mnop3456"),
     filter: Dict[str, Any] = Body(..., description="The filter criteria for retrieving documents.", example={"author": "John Doe"}),
@@ -523,7 +576,70 @@ async def filter_vector_store(
     return [DocumentModel.from_langchain_document(doc) for doc in results]
 
 
+@router.post("/vector_store/method/", response_description="Execute a method of a vector store instance")
+async def execute_vector_store_method(request: ExecuteMethodRequest):
+    """
+    Execute a method of a vector store instance.
+
+    - **store_id**: The unique ID of the vector store instance.
+    - **method_name**: The name of the method to execute.
+    - **args**: The positional arguments for the method (if any).
+    - **kwargs**: The keyword arguments for the method (if any).
+    """
+    store_id = request.store_id
+    method_name = request.method_name
+    args = request.args
+    kwargs = request.kwargs
+
+    try:
+        vector_store_instance = vector_stores.get(store_id)
+        if vector_store_instance is None:
+            raise ValueError("Vector store instance ID does not exist")
+
+        if not hasattr(vector_store_instance, method_name):
+            raise ValueError(f"Method '{method_name}' does not exist on vector store instance")
+
+        method = getattr(vector_store_instance, method_name)
+
+        if callable(method):
+            result = method(*args, **kwargs)
+            return {"result": result}
+        else:
+            raise ValueError(f"'{method_name}' is not a callable method")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/vector_store/attribute/", response_description="Get an attribute of a vector store instance")
+async def get_vector_store_attribute(request: GetAttributeRequest):
+    """
+    Get an attribute of a vector store instance.
+
+    - **store_id**: The unique ID of the vector store instance.
+    - **attribute_name**: The name of the attribute to get.
+    """
+    store_id = request.store_id
+    attribute_name = request.attribute_name
+
+    try:
+        vector_store_instance = vector_stores.get(store_id)
+        if vector_store_instance is None:
+            raise ValueError("Vector store instance ID does not exist")
+
+        if not hasattr(vector_store_instance, attribute_name):
+            raise ValueError(f"Attribute '{attribute_name}' does not exist on vector store instance")
+
+        attribute = getattr(vector_store_instance, attribute_name)
+        return {"attribute": attribute}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8104)
+    app = FastAPI()
+
+    app.include_router(router, prefix="/vector_stores", tags=["vector_stores"])
+
+    uvicorn.run(app, host="127.0.0.1", port=8105)
