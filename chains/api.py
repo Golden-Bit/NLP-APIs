@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from pymongo import MongoClient
-from chains.utilities.chain_manager import ChainManager
+from utilities.chain_manager import ChainManager
 from fastapi.responses import StreamingResponse
 from data_stores.api import router as router_1
 from document_loaders.api import router as router_2
