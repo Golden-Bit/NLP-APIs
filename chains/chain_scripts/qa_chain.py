@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
-from global_parameters import *
+#from global_parameters import *
 
 
 # First we need a prompt that we can pass into an LLM to generate this search query

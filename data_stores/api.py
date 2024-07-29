@@ -15,7 +15,8 @@ router = APIRouter()
 
 # Initialize the root path for storing files
 #root_path = Path.cwd() / "workspace" / "data_stores" / "data"
-root_path = Path(str(Path.cwd()).replace("chains", "data_stores")) / "data"
+#root_path = Path(str(Path.cwd()).replace("chains", "data_stores")) / "data"
+root_path = Path(str(Path.cwd())) / "data_stores" / "data"
 file_storage = FileStorage(root_path)
 
 
