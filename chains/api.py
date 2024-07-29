@@ -1,9 +1,11 @@
+import json
+
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from pymongo import MongoClient
 from chains.utilities.chain_manager import ChainManager
-
+from fastapi.responses import StreamingResponse
 from data_stores.api import router as router_1
 from document_loaders.api import router as router_2
 from document_stores.api import router as router_3
@@ -23,11 +25,18 @@ collection = db['chain_configs']
 chain_manager = ChainManager(collection)
 
 class ChainConfigRequest(BaseModel):
+    chain_type: str = Field(..., example="qa_chain", title="Chain Type", description="The chain's type to configure.")
     config_id: str = Field(..., example="example_chain_config", title="Config ID", description="The unique ID of the chain configuration.")
     chain_id: str = Field(..., example="example_chain", title="Chain ID", description="The unique ID of the chain.")
     prompt_id: str = Field(..., example="example_prompt", title="Prompt ID", description="The unique ID of the prompt.")
     llm_id: str = Field(..., example="example_llm", title="LLM ID", description="The unique ID of the LLM.")
     vectorstore_id: str = Field(..., example="example_vectorstore", title="Vectorstore ID", description="The unique ID of the vectorstore.")
+
+
+class ExecuteChainRequest(BaseModel):
+    chain_id: str = Field(..., example="example_chain", title="Chain ID", description="The unique ID of the chain to execute.")
+    query: Dict[str, Any] = Field(..., example={"input": "What is my name?", "chat_history": [["user", "hello, my name is mario!"], ["assistant", "hello, how are you mario?"]]}, title="Query", description="The input query for the chain.")
+
 
 @router.post("/configure_chain/", response_model=dict)
 async def configure_chain(request: ChainConfigRequest):
@@ -168,11 +177,6 @@ async def get_chain_config(config_id: str = Path(..., description="The unique ID
         raise HTTPException(status_code=400, detail=str(e))
 
 
-class ExecuteChainRequest(BaseModel):
-    chain_id: str = Field(..., example="example_chain", title="Chain ID", description="The unique ID of the chain to execute.")
-    query: str = Field(..., example="What are the approaches to Task Decomposition?", title="Query", description="The input query for the chain.")
-
-
 @router.post("/execute_chain/", response_model=dict)
 async def execute_chain(request: ExecuteChainRequest):
     """
@@ -187,8 +191,33 @@ async def execute_chain(request: ExecuteChainRequest):
     """
     try:
         chain = chain_manager.get_chain(request.chain_id)
-        result = chain({"query": request.query})
-        return {"result": result}
+        result = chain.invoke(request.query)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/stream_chain")
+async def stream_chain(request: ExecuteChainRequest):
+
+    async def generate_response(chain: Any, query: Dict[str, Any], stream_only_content: bool = False):
+
+        async for chunk in chain.astream(query):
+
+            try:
+                chunk = json.dumps(chunk, indent=2)
+            except Exception as e:
+                #print(e)
+                print(chunk)
+                chunk = {"error": "output object not serializable"}
+                chunk = json.dumps(chunk, indent=2)
+            yield chunk
+
+    try:
+        body = request
+        chain = chain_manager.get_chain(body.chain_id)
+        query = body.query
+        return StreamingResponse(generate_response(chain, query), media_type="application/json")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 

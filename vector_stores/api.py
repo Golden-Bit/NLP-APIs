@@ -277,6 +277,8 @@ async def load_vector_store(
     vector_store_params = config["config"]["params"]
 
     # Load embeddings model if specified
+    # TODO:
+    #  - [ ] load embedding models from model_manager class
     embeddings_model = None
     if config["config"].get("embeddings_model_class"):
         embeddings_model_class = config["config"]["embeddings_model_class"]
@@ -541,10 +543,11 @@ async def vector_store_as_retriever(
     retriever = vector_store_instance.as_retriever(search_type=search_type, search_kwargs=search_kwargs)
 
     # Perform the retrieval
-    results = retriever.retrieve(query)
+    #results = retriever.retrieve(query)
+    results = retriever.invoke(input=query)
 
-    if search_type == "similarity_score_threshold":
-        return [(DocumentModel.from_langchain_document(result[0]), result[1]) for result in results]
+    #if search_type == "similarity_score_threshold":
+    #    return [(DocumentModel.from_langchain_document(result[0]), result[1]) for result in results]
 
     return [DocumentModel.from_langchain_document(result) for result in results]
 

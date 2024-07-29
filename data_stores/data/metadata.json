@@ -104,5 +104,61 @@
             "file_description": "test decription for test file",
             "key": 0
         }
+    },
+    "my_test_dir": {
+        "description": "test description",
+        "extra": "metadata"
+    },
+    "my_test_dir/2_crop_index_0_crop_x32_y0.png": {
+        "name": "my_test_dir/2_crop_index_0_crop_x32_y0.png",
+        "size": 578734,
+        "modified_time": "Mon Jul 29 03:02:05 2024",
+        "created_time": "Mon Jul 29 03:02:05 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\projects_in_progress\\GoldenProjects\\golden_bit\\repositories\\NLP-APIs\\data_stores\\data\\my_test_dir\\2_crop_index_0_crop_x32_y0.png",
+        "mime_type": "image/png",
+        "custom_metadata": {
+            "file_description": "bho",
+            "foo": "bar"
+        }
+    },
+    "my_test_dir/huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf": {
+        "name": "my_test_dir/huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf",
+        "size": 1036053,
+        "modified_time": "Mon Jul 29 03:02:05 2024",
+        "created_time": "Mon Jul 29 03:02:05 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\projects_in_progress\\GoldenProjects\\golden_bit\\repositories\\NLP-APIs\\data_stores\\data\\my_test_dir\\huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf",
+        "mime_type": "application/pdf",
+        "custom_metadata": {
+            "file_description": "bho",
+            "foo": "bar"
+        }
+    },
+    "my_test_dir_2": {
+        "description": "test description",
+        "extra": "metadata"
+    },
+    "my_test_dir_2/huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf": {
+        "name": "my_test_dir_2/huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf",
+        "size": 1036053,
+        "modified_time": "Mon Jul 29 03:34:05 2024",
+        "created_time": "Mon Jul 29 03:34:05 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\projects_in_progress\\GoldenProjects\\golden_bit\\repositories\\NLP-APIs\\data_stores\\data\\my_test_dir_2\\huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf",
+        "mime_type": "application/pdf",
+        "custom_metadata": {
+            "file_description": "file test description",
+            "a": "b"
+        }
+    },
+    "my_test_dir_4/huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf": {
+        "name": "my_test_dir_4/huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf",
+        "size": 1036053,
+        "modified_time": "Mon Jul 29 03:34:30 2024",
+        "created_time": "Mon Jul 29 03:34:30 2024",
+        "path": "C:\\Users\\Golden Bit\\Desktop\\projects_in_progress\\GoldenProjects\\golden_bit\\repositories\\NLP-APIs\\data_stores\\data\\my_test_dir_4\\huawei-sun2000-2-3-4-5-6-ktl-l1-inverter-monofase-scheda-tecnica.pdf",
+        "mime_type": "application/pdf",
+        "custom_metadata": {
+            "file_description": "file test description",
+            "a": "b"
+        }
     }
 }

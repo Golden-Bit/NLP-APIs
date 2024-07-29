@@ -59,10 +59,6 @@ class FileStorage:
 
     def save_file(self, key: str, content: bytes, custom_metadata: Optional[Dict[str, Any]] = None) -> None:
         key = self._normalize_key(key)
-        # Ensure the directory exists
-        directory = os.path.dirname(key)
-        if directory and not os.path.exists(directory):
-            os.makedirs(directory)
 
         self.store.mset([(key, content)])
         metadata_store = self._load_metadata_store()

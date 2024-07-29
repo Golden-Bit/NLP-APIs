@@ -18,7 +18,7 @@ router = APIRouter()
 mongo_connection_string = "mongodb://localhost:27017/"
 mongo_client = MongoClient(mongo_connection_string)
 loaders_db_name = "loader_configs"
-document_store_db_name = "loader_configs"
+document_store_db_name = "document_store"
 ########################################################################################################################
 
 # Mappatura dei loader disponibili

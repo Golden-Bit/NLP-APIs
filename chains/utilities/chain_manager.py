@@ -1,3 +1,5 @@
+from typing import Dict, Any
+
 from pymongo import MongoClient
 from langchain.chains import RetrievalQA
 
@@ -11,16 +13,22 @@ from langchain.chains import RetrievalQA
 
 # TODO:
 #  - [ ] to implement VectorStoreManager class
+from chains.chain_scripts import qa_chain
+
 from vector_stores.api import vector_stores
 from llms.api import model_manager
 from prompts.api import prompt_manager
-
-# TODO:
-#  - [ ] to implement 'get_tool' method in ToolManager class
-#from tools.api import tool_manager
+from tools.api import tool_manager
 
 
-# Placeholder functions for getting components by ID
+# Functions for getting components by ID
+
+
+def get_tool_component(tool_id: str):
+    tool = tool_manager.get_tool(tool_id)
+    return tool
+
+
 def get_prompt_component(config_id: str):
     # Function to get a prompt component by ID
 
@@ -46,6 +54,11 @@ def get_vectorstore_component(store_id: str):
 
 
 class ChainManager:
+
+    available_chains: Dict[str, Any] = {
+        "qa_chain": qa_chain
+    }
+
     def __init__(self, db_collection):
         self.chains = {}
         self.collection = db_collection
@@ -77,18 +90,20 @@ class ChainManager:
         if not config:
             raise ValueError("Configuration not found")
 
+        chain_type = config["chain_type"]
         chain_id = config["chain_id"]
         if chain_id in self.chains:
             raise ValueError("Chain already loaded")
 
-        prompt = get_prompt_component(config["prompt_id"])
+        #prompt = get_prompt_component(config["prompt_id"])
         llm = get_llm_component(config["llm_id"])
         vectorstore = get_vectorstore_component(config["vectorstore_id"])
+        retriever = vectorstore.as_retriever(**{"search_type": "similarity", "search_kwargs": {"k": 10}})
 
-        qa_chain = RetrievalQA.from_chain_type(
-            llm, retriever=vectorstore.as_retriever(), chain_type_kwargs={"prompt": prompt}
-        )
-        self.chains[chain_id] = qa_chain
+        chain = self.available_chains[chain_type].get_chain(llm=llm,
+                                                            retriever=retriever)
+
+        self.chains[chain_id] = chain
         return {"message": "Chain loaded successfully", "chain_id": chain_id}
 
     def unload_chain(self, chain_id: str):

@@ -16,10 +16,10 @@ def stream_response(url, payload):
         print(f"Request failed with status code {response.status_code}")
 
 if __name__ == "__main__":
-    url = "http://127.0.0.1:8105/llm/streaming_inference/"
+    url = "http://127.0.0.1:8106/llms/streaming_inference/"
     payload = {
         "model_id": "chat-openai_gpt-4o",
-        "prompt": "Scrivimi un poema di due pagine, usa come tema le caccole nel naso (quelle fastidiose che non si staccano dalle dita).",
+        "prompt": "Scrivimi un poema di due pagine sul senso della vita.",
         "stream_only_content": True
     }
     stream_response(url, payload)

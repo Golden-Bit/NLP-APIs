@@ -86,6 +86,9 @@ class ToolManager:
     def list_tool_instances(self):
         return list(self.instantiated_tools.keys())
 
+    def get_tool(self, tool_id: str):
+        return self.instantiated_tools[tool_id]
+
 
 if __name__ == "__main__":
     p_repl = PythonREPLTool()
