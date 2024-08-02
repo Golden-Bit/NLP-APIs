@@ -6,6 +6,7 @@ import uuid
 from pymongo import MongoClient
 
 from langchain_core.documents import Document
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.document_loaders.html_bs import BSHTMLLoader
 from langchain_community.document_loaders.text import TextLoader
@@ -25,7 +26,8 @@ document_store_db_name = "document_store"
 available_loaders = {
     "TextLoader": TextLoader,
     "BSHTMLLoader": BSHTMLLoader,
-    "CSVLoader": CSVLoader
+    "CSVLoader": CSVLoader,
+    "PyMuPDFLoader": PyMuPDFLoader
 }
 
 
