@@ -10,6 +10,7 @@ from langchain_community.document_loaders.csv_loader import CSVLoader
 from langchain_community.document_loaders.html_bs import BSHTMLLoader
 from langchain_community.document_loaders.text import TextLoader
 from langchain_community.document_loaders.unstructured import UnstructuredFileLoader
+from langchain_community.document_loaders.pdf import PyPDFLoader, PyMuPDFLoader
 
 FILE_LOADER_TYPE = Union[
     Type[UnstructuredFileLoader], Type[TextLoader], Type[BSHTMLLoader], Type[CSVLoader]

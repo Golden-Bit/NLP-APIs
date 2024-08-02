@@ -36,22 +36,10 @@ class ModelManager:
             raise ValueError("Configuration not found")
 
         model_id = config['model_id']
-        #model_name = config['model_name']
         model_type = config['model_type']
         model_kwargs = config.get('model_kwargs', {})
 
         self.models[model_id] = available_models[model_type](**model_kwargs)
-
-        #if model_type == 'openai':
-        #    self.models[model_id] = OpenAI(model_name=model_name, openai_api_key=os.getenv('OPENAI_API_KEY'),
-        #                                   **model_kwargs)
-        #elif model_type == 'vllm':
-        #    self.models[model_id] = VLLM(model=model_name, trust_remote_code=True, **model_kwargs)
-        #elif model_type == 'vllm-openai':
-        #    self.models[model_id] = VLLMOpenAI(model=model_name, openai_api_key="EMPTY",
-        #                                       **model_kwargs)
-        #else:
-        #    raise ValueError("Unsupported model type")
 
     def unload_model(self, model_id: str):
         """

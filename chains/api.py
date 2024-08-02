@@ -239,4 +239,4 @@ if __name__ == "__main__":
 
     app.include_router(router, prefix="/chains", tags=["chains"])
 
-    uvicorn.run(app, host="127.0.0.1", port=8109)
+    uvicorn.run(app, host="0.0.0.0", port=8100)
