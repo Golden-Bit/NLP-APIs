@@ -5,7 +5,7 @@ from pymongo import MongoClient
 import uuid
 from langchain_core.documents import Document
 from langchain_community.vectorstores import Chroma, ElasticsearchStore, ElasticVectorSearch, FAISS
-from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 
 router = APIRouter()
 
@@ -33,7 +33,8 @@ VECTOR_STORE_CLASSES = {
 
 # Mapping of available embeddings models
 EMBEDDINGS_MODELS = {
-    "OpenAIEmbeddings": OpenAIEmbeddings
+    "OpenAIEmbeddings": OpenAIEmbeddings,
+    "HuggingFaceEmbeddings": HuggingFaceEmbeddings,
 }
 
 
