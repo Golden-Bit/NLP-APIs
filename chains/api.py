@@ -1,5 +1,9 @@
-import json
+import pysqlite3
+import sys
 
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
+import json
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
