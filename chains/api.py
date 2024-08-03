@@ -40,7 +40,7 @@ class ChainConfigRequest(BaseModel):
 class ExecuteChainRequest(BaseModel):
     chain_id: str = Field(..., example="example_chain", title="Chain ID", description="The unique ID of the chain to execute.")
     query: Dict[str, Any] = Field(..., example={"input": "What is my name?", "chat_history": [["user", "hello, my name is mario!"], ["assistant", "hello, how are you mario?"]]}, title="Query", description="The input query for the chain.")
-
+    inference_kwargs: Dict[str, Any] = Field(..., example={}, description="")
 
 @router.post("/configure_chain/", response_model=dict)
 async def configure_chain(request: ChainConfigRequest):
@@ -195,7 +195,7 @@ async def execute_chain(request: ExecuteChainRequest):
     """
     try:
         chain = chain_manager.get_chain(request.chain_id)
-        result = chain.invoke(request.query)
+        result = chain.invoke(request.query, **request.inference_kwargs)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -204,9 +204,9 @@ async def execute_chain(request: ExecuteChainRequest):
 @router.post("/stream_chain")
 async def stream_chain(request: ExecuteChainRequest):
 
-    async def generate_response(chain: Any, query: Dict[str, Any], stream_only_content: bool = False):
+    async def generate_response(chain: Any, query: Dict[str, Any], inference_kwargs: Dict[str, Any], stream_only_content: bool = False):
 
-        async for chunk in chain.astream(query):
+        async for chunk in chain.astream(query, **inference_kwargs):
 
             try:
                 chunk = json.dumps(chunk, indent=2)
@@ -221,7 +221,8 @@ async def stream_chain(request: ExecuteChainRequest):
         body = request
         chain = chain_manager.get_chain(body.chain_id)
         query = body.query
-        return StreamingResponse(generate_response(chain, query), media_type="application/json")
+        inference_kwargs = body.inference_kwargs
+        return StreamingResponse(generate_response(chain, query, inference_kwargs), media_type="application/json")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
