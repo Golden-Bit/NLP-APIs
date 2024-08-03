@@ -43,7 +43,8 @@ def get_chain(llm: Any, retriever: Any):
         ]
     )
 
-    retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
+    retriever_chain = create_history_aware_retriever(ChatWrapper(llm=llm), retriever, prompt)
+    #retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
 
     prompt = ChatPromptTemplate.from_messages(
         [
