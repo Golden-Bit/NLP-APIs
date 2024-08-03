@@ -196,6 +196,7 @@ async def execute_chain(request: ExecuteChainRequest):
     try:
         chain = chain_manager.get_chain(request.chain_id)
         result = chain.invoke(request.query, **request.inference_kwargs)
+        print(result)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
