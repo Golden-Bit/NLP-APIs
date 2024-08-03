@@ -43,8 +43,8 @@ def get_chain(llm: Any, retriever: Any):
         ]
     )
 
-    retriever_chain = create_history_aware_retriever(ChatWrapper(llm=llm), retriever, prompt)
-    #retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
+    #retriever_chain = create_history_aware_retriever(ChatWrapper(llm=llm), retriever, prompt)
+    retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
 
     prompt = ChatPromptTemplate.from_messages(
         [
@@ -57,8 +57,8 @@ def get_chain(llm: Any, retriever: Any):
         ]
     )
 
-    document_chain = create_stuff_documents_chain(ChatWrapper(llm=llm), prompt)
-    #document_chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
+    #document_chain = create_stuff_documents_chain(ChatWrapper(llm=llm), prompt)
+    document_chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
 
     return create_retrieval_chain(retriever_chain, document_chain)
 
