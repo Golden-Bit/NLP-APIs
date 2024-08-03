@@ -1,3 +1,5 @@
+from langchain_experimental.chat_models.llm_wrapper import ChatWrapper
+
 import json
 from typing import Any
 
@@ -9,6 +11,23 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_openai import OpenAIEmbeddings
 #from global_parameters import *
+
+
+class Qwen2Chat(ChatWrapper):
+    """Wrapper for Qwen2-1.5B-Instruct model."""
+
+    @property
+    def _llm_type(self) -> str:
+        return "qwen2-style"
+
+    sys_beg: str = "[INST] <<SYS>>\n"
+    sys_end: str = "\n<</SYS>>"
+    ai_n_beg: str = "[ASSISTANT] "
+    ai_n_end: str = " </s>"
+    usr_n_beg: str = "[USER] "
+    usr_n_end: str = " [/USER]"
+    usr_0_beg: str = "[USER] "
+    usr_0_end: str = " [/USER]"
 
 
 # First we need a prompt that we can pass into an LLM to generate this search query
@@ -36,7 +55,8 @@ def get_chain(llm: Any, retriever: Any):
             ("user", "{input}"),
         ]
     )
-    document_chain = create_stuff_documents_chain(llm, prompt)
+
+    document_chain = create_stuff_documents_chain(ChatWrapper(llm=llm), prompt)
 
     return create_retrieval_chain(retriever_chain, document_chain)
 
