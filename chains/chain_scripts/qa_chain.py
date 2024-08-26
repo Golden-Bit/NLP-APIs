@@ -34,18 +34,11 @@ class Qwen2Chat(ChatWrapper):
 def get_chain(llm: Any, retriever: Any):
     prompt = ChatPromptTemplate.from_messages(
         [
-            #("placeholder", "{chat_history}"),
-            #("user", "{input}"),
-            #(
-            #    "user",
-            #    "Given the above conversation, generate a search query to look up to get information relevant to the conversation",
-            #),
-
-            #("placeholder", "{chat_history}"),
-            #("user", "{input}"),
+            ("placeholder", "{chat_history}"),
+            ("user", "{input}"),
             (
-               "user",
-               "Given the above conversation, generate a search query to look up to get information relevant to the conversation",
+                "user",
+                "Given the above conversation, generate a search query to look up to get information relevant to the conversation",
             ),
         ]
     )
@@ -55,22 +48,11 @@ def get_chain(llm: Any, retriever: Any):
 
     prompt = ChatPromptTemplate.from_messages(
         [
-            #(
-            #    "system",
-            #    "Answer the user's questions based on the below context:\n\n{context}",
-            #),
-            #("placeholder", "{chat_history}"),
-            #("user", "{input}"),
-
             (
-                "user",
+                "system",
                 "Answer the user's questions based on the below context:\n\n{context}",
             ),
-            (
-                "assistant",
-                "ok!",
-            ),
-            #("placeholder", "{chat_history}"),
+            ("placeholder", "{chat_history}"),
             ("user", "{input}"),
         ]
     )
