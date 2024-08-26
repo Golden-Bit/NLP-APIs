@@ -60,7 +60,7 @@ def get_chain(llm: Any, retriever: Any):
                 "Answer the user's questions based on the below context:\n\n{context}",
             ),
             (
-                "ai",
+                "assistant",
                 "ok!",
             ),
             ("placeholder", "{chat_history}"),
