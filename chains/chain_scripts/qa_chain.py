@@ -48,9 +48,20 @@ def get_chain(llm: Any, retriever: Any):
 
     prompt = ChatPromptTemplate.from_messages(
         [
+            #(
+            #    "system",
+            #    "Answer the user's questions based on the below context:\n\n{context}",
+            #),
+            #("placeholder", "{chat_history}"),
+            #("user", "{input}"),
+
             (
-                "system",
+                "user",
                 "Answer the user's questions based on the below context:\n\n{context}",
+            ),
+            (
+                "ai",
+                "ok!",
             ),
             ("placeholder", "{chat_history}"),
             ("user", "{input}"),
