@@ -30,6 +30,12 @@ def get_chain(llm: Any, retriever: Any):
     for collection_name in COLLECTION_LIST:
         collection = db[collection_name]
         documents = list(collection.find())  # Recupera tutti i documenti
+
+        # Rimuoviamo il campo 'images' da ciascun documento, se presente
+        for doc in documents:
+            if 'images' in doc:
+                del doc['images']  # Elimina il campo 'images' dal documento
+
         # Convertiamo i documenti in JSON, rimuoviamo '{' e '}', e li aggiungiamo al dizionario
         json_data = json.dumps(documents, default=str)
         json_data = json_data.replace('{', '').replace('}', '')  # Rimuovi '{' e '}'
