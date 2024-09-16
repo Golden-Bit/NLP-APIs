@@ -13,7 +13,7 @@ from langchain_openai import OpenAIEmbeddings
 #from global_parameters import *
 
 
-class Qwen2Chat(ChatWrapper):
+'''class Qwen2Chat(ChatWrapper):
     """Wrapper for Qwen2-1.5B-Instruct model."""
 
     @property
@@ -27,11 +27,43 @@ class Qwen2Chat(ChatWrapper):
     usr_n_beg: str = "[USER] "
     usr_n_end: str = " [/USER]"
     usr_0_beg: str = "[USER] "
-    usr_0_end: str = " [/USER]"
+    usr_0_end: str = " [/USER]"'''
 
 
 # First we need a prompt that we can pass into an LLM to generate this search query
 def get_chain(llm: Any, retriever: Any):
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("placeholder", "{chat_history}"),
+            ("user", "{input}"),
+            (
+                "user",
+                "Given the above conversation, generate a search query to look up to get information relevant to the conversation",
+            ),
+        ]
+    )
+
+    #retriever_chain = create_history_aware_retriever(ChatWrapper(llm=llm), retriever, prompt)
+    retriever_chain = create_history_aware_retriever(llm, retriever, prompt)
+
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            (
+                "system",
+                "Answer the user's questions based on the below context:\n\n{context}",
+            ),
+            ("placeholder", "{chat_history}"),
+            ("user", "{input}"),
+        ]
+    )
+
+    #document_chain = create_stuff_documents_chain(ChatWrapper(llm=llm), prompt)
+    document_chain = create_stuff_documents_chain(llm=llm, prompt=prompt)
+
+    return create_retrieval_chain(retriever_chain, document_chain)
+
+
+def get_chain_(llm: Any, retriever: Any):
     prompt = ChatPromptTemplate.from_messages(
         [
             ("placeholder", "{chat_history}"),

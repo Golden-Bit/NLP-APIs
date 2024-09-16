@@ -14,7 +14,7 @@ from langchain.chains import RetrievalQA
 # TODO:
 #  - [ ] to implement VectorStoreManager class
 #from chains.chain_scripts import qa_chain
-from chains.chain_scripts import qa_chain
+from chains.chain_scripts import tmp as qa_chain
 from llms.api import model_manager
 from prompts.api import prompt_manager
 from tools.api import tool_manager
