@@ -70,7 +70,7 @@ def get_chain(llm: Any, retriever: Any):
         [
             (
                 "system",
-                "Answer the user's questions based on the below context:\n\n{context}" + f"{system_message}"  # Usa il messaggio di sistema che include i dati del database
+                "Dovrai fare dinta di essere un assistente per unn gestionale. simula tutti i task che ti verrannomchiesti e simula belle conversazioni. Answer the user's questions based on the below context:\n\n{context}" + f"{system_message}"  # Usa il messaggio di sistema che include i dati del database
             ),
             ("placeholder", "{chat_history}"),
             ("user", "{input}"),
