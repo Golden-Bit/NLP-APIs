@@ -10,7 +10,7 @@ def get_chain(llm: Any, retriever: Any):
     # Variabili costanti per il nome del database e le collection
     DATABASE_NAME = 'sans7-database_0'
     COLLECTION_LIST = ['tasks',
-                       'documents',
+                       #'documents',
                        'contacts',
                        'products',
                        'appointments',
@@ -64,7 +64,8 @@ def get_chain(llm: Any, retriever: Any):
         [
             (
                 "system",
-                system_message,  # Usa il messaggio di sistema che include i dati del database
+                "Answer the user's questions based on the below context:\n\n{context}",
+                f"{system_message}",  # Usa il messaggio di sistema che include i dati del database
             ),
             ("placeholder", "{chat_history}"),
             ("user", "{input}"),
