@@ -1,5 +1,4 @@
 from typing import Any
-
 from pymongo import MongoClient
 import json
 from langchain.prompts import ChatPromptTemplate
@@ -12,11 +11,11 @@ def get_chain(llm: Any, retriever: Any):
     DATABASE_NAME = 'sans7-database_0'
     COLLECTION_LIST = ['tasks',
                        'documents',
-                       'contacts'
-                       'products'
-                       'appointments'
-                       'taskLists'
-                       'Services'
+                       'contacts',
+                       'products',
+                       'appointments',
+                       'taskLists',
+                       'Services',
                        'folders'
                        ]  # Sostituisci con le collection reali
 
@@ -31,9 +30,12 @@ def get_chain(llm: Any, retriever: Any):
     for collection_name in COLLECTION_LIST:
         collection = db[collection_name]
         documents = list(collection.find())  # Recupera tutti i documenti
-        # Convertiamo i documenti in JSON e li aggiungiamo al dizionario
-        data[collection_name] = json.dumps(documents, default=str)
+        # Convertiamo i documenti in JSON, rimuoviamo '{' e '}', e li aggiungiamo al dizionario
+        json_data = json.dumps(documents, default=str)
+        json_data = json_data.replace('{', '').replace('}', '')  # Rimuovi '{' e '}'
+        data[collection_name] = json_data
         print(data[collection_name])
+
     # Chiudi la connessione al database
     client.close()
 
@@ -84,4 +86,3 @@ def get_chain(llm: Any, retriever: Any):
 # input_chat = ...  # Inserisci input di test
 # result = chain.run(input_chat)
 # print(result)
-
