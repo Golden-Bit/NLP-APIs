@@ -3,8 +3,8 @@ from typing import Any
 from pymongo import MongoClient
 import json
 from langchain.prompts import ChatPromptTemplate
-from langchain.chains import create_stuff_documents_chain, create_retrieval_chain, create_history_aware_retriever
-
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 
 # Step 1: Connessione al database MongoDB e recupero dati
 def get_chain(llm: Any, retriever: Any):
