@@ -4,7 +4,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 # Step 1: Initialize the ChatOpenAI instance to use the VLLM server
 llm = ChatOpenAI(
-    model="TheBloke/Mistral-7B-Instruct-v0.2-AWQ",  # Specify the model name
+    model="Qwen/Qwen2-7B-Instruct-AWQ",  # Specify the model name
     openai_api_key="EMPTY",  # API key is ignored for local VLLM server
     openai_api_base="http://34.78.163.86:8099/v1",  # Base URL of your VLLM server
     streaming=True  # Enable streaming
