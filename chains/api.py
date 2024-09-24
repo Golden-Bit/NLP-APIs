@@ -5,6 +5,7 @@ sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 import json
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from pymongo import MongoClient
@@ -232,6 +233,14 @@ if __name__ == "__main__":
     import uvicorn
 
     app = FastAPI()
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Permetti tutte le origini
+        allow_credentials=True,
+        allow_methods=["*"],  # Permetti tutti i metodi (GET, POST, OPTIONS, ecc.)
+        allow_headers=["*"],  # Permetti tutti gli headers
+    )
 
     app.include_router(router_1, prefix="/data_stores", tags=["data_stores"])
     app.include_router(router_2, prefix="/document_loaders", tags=["document_loaders"])
