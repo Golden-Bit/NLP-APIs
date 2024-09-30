@@ -29,6 +29,7 @@ db = client['chain_db']
 collection = db['chain_configs']
 chain_manager = ChainManager(collection)
 
+
 class ChainConfigRequest(BaseModel):
     chain_type: str = Field(..., example="qa_chain", title="Chain Type", description="The chain's type to configure.")
     config_id: str = Field(..., example="example_chain_config", title="Config ID", description="The unique ID of the chain configuration.")
