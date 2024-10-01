@@ -5,8 +5,17 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import httpx
 import uuid
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permetti tutte le origini
+    allow_credentials=True,
+    allow_methods=["*"],  # Permetti tutti i metodi (GET, POST, OPTIONS, ecc.)
+    allow_headers=["*"],  # Permetti tutti gli headers
+)
 
 BASE_URL = "http://34.140.110.56:8100"
 
@@ -99,7 +108,7 @@ async def upload_file_to_contexts(file: UploadFile,
     file_content = await file.read()  # Read the file content once and reuse it
 
     contexts = contexts[0].split(',')
-
+    timeout_settings = httpx.Timeout(600.0, connect=600.0, read=600.0, write=600.0)
     async with httpx.AsyncClient() as client:
         responses = []
         # Sequentially upload the file to each context
@@ -112,7 +121,7 @@ async def upload_file_to_contexts(file: UploadFile,
             files = {"file": (file.filename, file_content, file.content_type)}
 
             # Make the POST request to upload the file to the current context
-            response = await client.post(f"{BASE_URL}/data_stores/upload", data=data, files=files)
+            response = await client.post(f"{BASE_URL}/data_stores/upload", data=data, files=files, timeout=timeout_settings)
 
             if response.status_code != 200:
                 print(
@@ -182,7 +191,7 @@ async def upload_file_to_contexts(file: UploadFile,
                 raise HTTPException(status_code=loader_response.status_code, detail=loader_response.json())
 
             # Apply the loader to process the document
-            load_response = await client.post(f"{BASE_URL}/document_loaders/load_documents/{loader_config_id}")
+            load_response = await client.post(f"{BASE_URL}/document_loaders/load_documents/{loader_config_id}", timeout=timeout_settings)
             if load_response.status_code != 200:
                 raise HTTPException(status_code=load_response.status_code, detail=load_response.json())
 
@@ -203,7 +212,7 @@ async def upload_file_to_contexts(file: UploadFile,
                 },
                 "embeddings_model_class": "OpenAIEmbeddings",
                 "embeddings_params": {
-                    "api_key": "API_KEY"  # Replace with actual API key or environment variable
+                    "api_key": ""  # Replace with actual API key or environment variable
                 },
                 "description": f"Vector store for context {context}",
                 "custom_metadata": {
@@ -213,14 +222,14 @@ async def upload_file_to_contexts(file: UploadFile,
 
             # Configure the vector store
             vector_store_response = await client.post(
-                f"{BASE_URL}/vector_stores/vector_store/configure", json=vector_store_config)
+                f"{BASE_URL}/vector_stores/vector_store/configure", json=vector_store_config, timeout=timeout_settings)
             if vector_store_response.status_code != 200 and vector_store_response.status_code != 400:
                 raise HTTPException(status_code=vector_store_response.status_code, detail=vector_store_response.json())
 
             #vector_store_config_id = vector_store_response.json()["config_id"]
 
             ### Load the Vector Store ###
-            load_vector_response = await client.post(f"{BASE_URL}/vector_stores/vector_store/load/{vector_store_config_id}")
+            load_vector_response = await client.post(f"{BASE_URL}/vector_stores/vector_store/load/{vector_store_config_id}", timeout=timeout_settings)
             if load_vector_response.status_code != 200 and load_vector_response.status_code != 400:
                 raise HTTPException(status_code=load_vector_response.status_code, detail=load_vector_response.json())
 
@@ -230,12 +239,14 @@ async def upload_file_to_contexts(file: UploadFile,
                 f"{BASE_URL}/vector_stores/vector_store/add_documents_from_store/{vector_store_id}",
                 params={"document_collection": doc_store_collection_name})
             if add_docs_response.status_code != 200:
+                print(add_docs_response)
                 raise HTTPException(status_code=add_docs_response.status_code, detail=add_docs_response.json())
-
-            print(add_docs_response.json())
 
         # Return the collected responses with file UUID and associated contexts
         return {"file_id": file_uuid, "contexts": contexts}
+
+########################################################################################################################
+########################################################################################################################
 
 
 # Create a new context (directory)

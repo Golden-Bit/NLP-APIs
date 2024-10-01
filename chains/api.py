@@ -230,29 +230,29 @@ async def stream_chain(request: ExecuteChainRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
-if __name__ == "__main__":
-    import uvicorn
 
-    app = FastAPI()
+# import uvicorn
 
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],  # Permetti tutte le origini
-        allow_credentials=True,
-        allow_methods=["*"],  # Permetti tutti i metodi (GET, POST, OPTIONS, ecc.)
-        allow_headers=["*"],  # Permetti tutti gli headers
-    )
+app = FastAPI()
 
-    app.include_router(router_1, prefix="/data_stores", tags=["data_stores"])
-    app.include_router(router_2, prefix="/document_loaders", tags=["document_loaders"])
-    app.include_router(router_3, prefix="/document_stores", tags=["document_stores"])
-    app.include_router(router_4, prefix="/document_transformers", tags=["document_transformers"])
-    app.include_router(router_5, prefix="/embedding_models", tags=["embedding_models"])
-    app.include_router(router_6, prefix="/vector_stores", tags=["vector_stores"])
-    app.include_router(router_7, prefix="/llms", tags=["llms"])
-    app.include_router(router_8, prefix="/prompts", tags=["prompts"])
-    app.include_router(router_9, prefix="/tools", tags=["tools"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permetti tutte le origini
+    allow_credentials=True,
+    allow_methods=["*"],  # Permetti tutti i metodi (GET, POST, OPTIONS, ecc.)
+    allow_headers=["*"],  # Permetti tutti gli headers
+)
 
-    app.include_router(router, prefix="/chains", tags=["chains"])
+app.include_router(router_1, prefix="/data_stores", tags=["data_stores"])
+app.include_router(router_2, prefix="/document_loaders", tags=["document_loaders"])
+app.include_router(router_3, prefix="/document_stores", tags=["document_stores"])
+app.include_router(router_4, prefix="/document_transformers", tags=["document_transformers"])
+app.include_router(router_5, prefix="/embedding_models", tags=["embedding_models"])
+app.include_router(router_6, prefix="/vector_stores", tags=["vector_stores"])
+app.include_router(router_7, prefix="/llms", tags=["llms"])
+app.include_router(router_8, prefix="/prompts", tags=["prompts"])
+app.include_router(router_9, prefix="/tools", tags=["tools"])
 
-    uvicorn.run(app, host="0.0.0.0", port=8100)
+app.include_router(router, prefix="/chains", tags=["chains"])
+
+#uvicorn.run(app, host="0.0.0.0", port=8100)
