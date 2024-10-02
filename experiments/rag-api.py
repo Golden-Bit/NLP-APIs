@@ -1,6 +1,6 @@
 import json
 
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form, Query
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Form, Query, Body
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 import httpx
@@ -212,7 +212,7 @@ async def upload_file_to_contexts(file: UploadFile,
                 },
                 "embeddings_model_class": "OpenAIEmbeddings",
                 "embeddings_params": {
-                    "api_key": ""  # Replace with actual API key or environment variable
+                    "api_key": "......"  # Replace with actual API key or environment variable
                 },
                 "description": f"Vector store for context {context}",
                 "custom_metadata": {
@@ -354,3 +354,156 @@ async def delete_file(file_id: Optional[str] = Query(None), file_path: Optional[
         raise HTTPException(status_code=400, detail="Either file_id or file_path must be provided")
 
     return result
+
+
+#@app.post("/configure_and_load_chain/")
+async def configure_and_load_chain_(context: str = Body(..., title="Context", description="The context for the chain configuration")):
+    """
+    Configura e carica una chain in memoria basata sul contesto dato.
+    """
+    # Configurazione della chain
+    chain_config = {
+        "chain_type": "qa_chain",
+        "config_id": f"{context}_qa_chain_config",
+        "chain_id": f"{context}_qa_chain",
+        "prompt_id": "example_prompt",
+        "llm_id": "chat-openai_gpt-4o-mini",
+        "vectorstore_id": f"{context}_vector_store"
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            # 1. Configurazione della chain
+            configure_url = f"{BASE_URL}/chains/configure_chain/"
+            configure_response = await client.post(configure_url, json=chain_config)
+
+            if configure_response.status_code != 200 and configure_response.status_code != 400:
+                raise HTTPException(status_code=configure_response.status_code, detail=f"Errore configurazione: {configure_response.text}")
+
+            configure_result = configure_response.json()
+
+            # 2. Caricamento della chain
+            load_url = f"{BASE_URL}/chains/load_chain/{chain_config['config_id']}"
+            load_response = await client.post(load_url)
+
+            if load_response.status_code != 200 and load_response.status_code != 400:
+                raise HTTPException(status_code=load_response.status_code, detail=f"Errore caricamento: {load_response.text}")
+
+            load_result = load_response.json()
+
+            return {
+                "message": "Chain configurata e caricata con successo.",
+                "config_result": configure_result,
+                "load_result": load_result
+            }
+
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail=f"Errore HTTP: {e.response.text}")
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Errore interno: {str(e)}")
+
+@app.post("/configure_and_load_chain/")
+async def configure_and_load_chain(
+    context: str = Query("default", title="Context", description="The context for the chain configuration"),
+    model_name: str = Query("gpt-4o-mini", title="Model Name", description="The name of the LLM model to load, default is gpt-4o")
+):
+    """
+    Configura e carica una chain in memoria basata sul contesto dato.
+    """
+
+    timeout_settings = httpx.Timeout(600.0, connect=600.0, read=600.0, write=600.0)
+
+    vector_store_config_id = f"{context}_vector_store_config"
+    vector_store_id = f"{context}_vector_store"
+
+    # Impostazione di configurazione per l'LLM basata su model_name (di default "gpt-4o")
+    llm_config_id = f"chat-openai_{model_name}_config"
+    llm_id = f"chat-openai_{model_name}"
+
+    async with httpx.AsyncClient() as client:
+        # 1. Caricamento dell'LLM
+        load_llm_url = f"{BASE_URL}/llms/load_model/{llm_config_id}"
+        llm_response = await client.post(load_llm_url, timeout=timeout_settings)
+
+        if llm_response.status_code != 200 and llm_response.status_code != 400:
+            raise HTTPException(status_code=llm_response.status_code, detail=f"Errore caricamento LLM: {llm_response.text}")
+
+        llm_load_result = llm_response.json()
+
+        # 2. Configurazione del vector store
+        vector_store_config = {
+            "config_id": vector_store_config_id,
+            "store_id": vector_store_id,
+            "vector_store_class": "Chroma",  # Example: using Chroma vector store, modify as necessary
+            "params": {
+                "persist_directory": f"vector_stores/{context}"
+            },
+            "embeddings_model_class": "OpenAIEmbeddings",
+            "embeddings_params": {
+                "api_key": "....."
+                # Replace with actual API key or environment variable
+            },
+            "description": f"Vector store for context {context}",
+            "custom_metadata": {
+                "source_context": context
+            }
+        }
+
+        # Configura il vector store
+        vector_store_response = await client.post(
+            f"{BASE_URL}/vector_stores/vector_store/configure", json=vector_store_config, timeout=timeout_settings
+        )
+        if vector_store_response.status_code != 200 and vector_store_response.status_code != 400:
+            raise HTTPException(status_code=vector_store_response.status_code, detail=vector_store_response.json())
+
+        # Carica il vector store
+        load_vector_response = await client.post(
+            f"{BASE_URL}/vector_stores/vector_store/load/{vector_store_config_id}", timeout=timeout_settings
+        )
+        if load_vector_response.status_code != 200 and load_vector_response.status_code != 400:
+            raise HTTPException(status_code=load_vector_response.status_code, detail=load_vector_response.json())
+
+    # Configurazione della chain
+    chain_config = {
+        "chain_type": "qa_chain",
+        "config_id": f"{context}_qa_chain_config",
+        "chain_id": f"{context}_qa_chain",
+        "prompt_id": "example_prompt",
+        "llm_id": llm_id,  # Usa l'ID del modello LLM configurato
+        "vectorstore_id": f"{context}_vector_store"
+    }
+
+    async with httpx.AsyncClient() as client:
+        try:
+            # 1. Configura la chain
+            configure_url = f"{BASE_URL}/chains/configure_chain/"
+            configure_response = await client.post(configure_url, json=chain_config)
+
+            if configure_response.status_code != 200 and configure_response.status_code != 400:
+                raise HTTPException(status_code=configure_response.status_code, detail=f"Errore configurazione: {configure_response.text}")
+
+            configure_result = configure_response.json()
+
+            # 2. Carica la chain
+            load_url = f"{BASE_URL}/chains/load_chain/{chain_config['config_id']}"
+            load_response = await client.post(load_url)
+
+            if load_response.status_code != 200 and load_response.status_code != 400:
+                raise HTTPException(status_code=load_response.status_code, detail=f"Errore caricamento: {load_response.text}")
+
+            load_result = load_response.json()
+
+            return {
+                "message": "Chain configurata e caricata con successo.",
+                "llm_load_result": llm_load_result,
+                "config_result": configure_result,
+                "load_result": load_result
+            }
+
+        except httpx.HTTPStatusError as e:
+            raise HTTPException(status_code=e.response.status_code, detail=f"Errore HTTP: {e.response.text}")
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Errore interno: {str(e)}")
+
