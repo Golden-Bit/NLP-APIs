@@ -1,7 +1,7 @@
 from openai import OpenAI
 
 # Set the API base URL to your VLLM server
-api_base = "http://34.78.163.86:8100/v1"
+api_base = "http://127.0.0.1:8100/v1"
 api_key = "EMPTY"  # The API key is ignored for local servers
 
 # Initialize the OpenAI client

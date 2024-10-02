@@ -1,0 +1,469 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>streaming_python</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="documentazione-dettagliata-sullimplementazione-dello-streaming-in-output">Documentazione Dettagliata sull’Implementazione dello Streaming in Output</h1>
+<p>Lo script Python fornito è un’applicazione chatbot costruita utilizzando <strong>Streamlit</strong>, un framework per creare applicazioni web interattive in Python. Lo script dimostra come integrare lo streaming in output quando si interagisce con un’API che supporta risposte in streaming. Questa documentazione analizzerà il metodo utilizzato per implementare lo streaming in output nello script, fornendo spiegazioni dettagliate e approfondimenti che possono aiutarti ad adattare questo approccio ad altri linguaggi di programmazione.</p>
+<hr>
+<h2 id="panoramica">Panoramica</h2>
+<p>Lo script esegue le seguenti funzioni chiave:</p>
+<ul>
+<li>Configura un’applicazione web Streamlit per l’interfaccia del chatbot.</li>
+<li>Gestisce i messaggi dell’utente e dell’assistente utilizzando lo stato della sessione.</li>
+<li>Invia gli input dell’utente a un’API esterna tramite richieste HTTP POST.</li>
+<li>Riceve le risposte dell’assistente in modalità streaming.</li>
+<li>Aggiorna l’interfaccia del chatbot in tempo reale man mano che nuovi dati arrivano.</li>
+</ul>
+<hr>
+<h2 id="analisi-dettagliata-dellimplementazione-dello-streaming">Analisi Dettagliata dell’Implementazione dello Streaming</h2>
+<h3 id="importazione-delle-librerie-necessarie">1. Importazione delle Librerie Necessarie</h3>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> json
+<span class="token keyword">from</span> typing <span class="token keyword">import</span> Any
+<span class="token keyword">import</span> requests
+<span class="token keyword">import</span> streamlit <span class="token keyword">as</span> st
+<span class="token keyword">import</span> copy
+<span class="token keyword">from</span> config <span class="token keyword">import</span> chatbot_config
+</code></pre>
+<ul>
+<li><strong><code>json</code></strong>: Per l’analisi dei dati JSON.</li>
+<li><strong><code>requests</code></strong>: Per effettuare richieste HTTP, incluse quelle con risposte in streaming.</li>
+<li><strong><code>streamlit</code></strong>: Per costruire l’interfaccia web interattiva.</li>
+<li><strong><code>copy</code></strong>: Per effettuare copie profonde dei messaggi predefiniti.</li>
+<li><strong><code>chatbot_config</code></strong>: Parametri di configurazione per il chatbot.</li>
+</ul>
+<hr>
+<h3 id="configurazione-e-inizializzazione">2. Configurazione e Inizializzazione</h3>
+<h4 id="impostazione-dellindirizzo-api-e-configurazione-della-pagina">Impostazione dell’Indirizzo API e Configurazione della Pagina</h4>
+<pre class=" language-python"><code class="prism  language-python">api_address <span class="token operator">=</span> chatbot_config<span class="token punctuation">[</span><span class="token string">"api_address"</span><span class="token punctuation">]</span>
+
+st<span class="token punctuation">.</span>set_page_config<span class="token punctuation">(</span>
+    page_title<span class="token operator">=</span>chatbot_config<span class="token punctuation">[</span><span class="token string">"page_title"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    page_icon<span class="token operator">=</span>chatbot_config<span class="token punctuation">[</span><span class="token string">"page_icon"</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    layout<span class="token operator">=</span><span class="token string">"wide"</span><span class="token punctuation">,</span>
+    initial_sidebar_state<span class="token operator">=</span><span class="token string">"auto"</span><span class="token punctuation">,</span>
+    menu_items<span class="token operator">=</span><span class="token boolean">None</span>
+<span class="token punctuation">)</span>
+</code></pre>
+<ul>
+<li><strong><code>api_address</code></strong>: L’URL base dell’API esterna.</li>
+<li><strong><code>st.set_page_config</code></strong>: Configura le impostazioni della pagina Streamlit.</li>
+</ul>
+<h4 id="inizializzazione-delle-variabili-di-stato-della-sessione">Inizializzazione delle Variabili di Stato della Sessione</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">if</span> <span class="token string">"messages"</span> <span class="token operator">not</span> <span class="token keyword">in</span> st<span class="token punctuation">.</span>session_state<span class="token punctuation">:</span>
+    st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages <span class="token operator">=</span> copy<span class="token punctuation">.</span>deepcopy<span class="token punctuation">(</span>chatbot_config<span class="token punctuation">[</span><span class="token string">"messages"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+<span class="token keyword">if</span> <span class="token string">"ai_avatar_url"</span> <span class="token operator">not</span> <span class="token keyword">in</span> st<span class="token punctuation">.</span>session_state<span class="token punctuation">:</span>
+    st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>ai_avatar_url <span class="token operator">=</span> chatbot_config<span class="token punctuation">[</span><span class="token string">"ai_avatar_url"</span><span class="token punctuation">]</span>
+
+<span class="token keyword">if</span> <span class="token string">"user_avatar_url"</span> <span class="token operator">not</span> <span class="token keyword">in</span> st<span class="token punctuation">.</span>session_state<span class="token punctuation">:</span>
+    st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>user_avatar_url <span class="token operator">=</span> chatbot_config<span class="token punctuation">[</span><span class="token string">"user_avatar_url"</span><span class="token punctuation">]</span>
+</code></pre>
+<ul>
+<li><strong><code>st.session_state.messages</code></strong>: Memorizza la cronologia della chat.</li>
+<li><strong><code>st.session_state.ai_avatar_url</code></strong>: URL per l’avatar dell’assistente.</li>
+<li><strong><code>st.session_state.user_avatar_url</code></strong>: URL per l’avatar dell’utente.</li>
+</ul>
+<hr>
+<h3 id="definizione-della-funzione-principale">3. Definizione della Funzione Principale</h3>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">def</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token comment"># Visualizza i messaggi esistenti</span>
+    <span class="token keyword">for</span> message <span class="token keyword">in</span> st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages<span class="token punctuation">:</span>
+        <span class="token keyword">if</span> message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token string">"user"</span><span class="token punctuation">:</span>
+            <span class="token keyword">with</span> st<span class="token punctuation">.</span>chat_message<span class="token punctuation">(</span>message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> avatar<span class="token operator">=</span>st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>user_avatar_url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                st<span class="token punctuation">.</span>markdown<span class="token punctuation">(</span>message<span class="token punctuation">[</span><span class="token string">"content"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">with</span> st<span class="token punctuation">.</span>chat_message<span class="token punctuation">(</span>message<span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span><span class="token punctuation">,</span> avatar<span class="token operator">=</span>st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>ai_avatar_url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+                st<span class="token punctuation">.</span>markdown<span class="token punctuation">(</span>message<span class="token punctuation">[</span><span class="token string">"content"</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    <span class="token comment"># Gestisce l'input dell'utente</span>
+    <span class="token keyword">if</span> prompt <span class="token punctuation">:</span><span class="token operator">=</span> st<span class="token punctuation">.</span>chat_input<span class="token punctuation">(</span><span class="token string">"Say something"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"user"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> prompt<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+        <span class="token comment"># Limita la cronologia dei messaggi agli ultimi 10</span>
+        <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages<span class="token punctuation">)</span> <span class="token operator">&gt;</span> <span class="token number">10</span><span class="token punctuation">:</span>
+            st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages <span class="token operator">=</span> st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">10</span><span class="token punctuation">:</span><span class="token punctuation">]</span>
+
+        <span class="token comment"># Visualizza il messaggio dell'utente</span>
+        <span class="token keyword">with</span> st<span class="token punctuation">.</span>chat_message<span class="token punctuation">(</span><span class="token string">"user"</span><span class="token punctuation">,</span> avatar<span class="token operator">=</span>st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>user_avatar_url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            st<span class="token punctuation">.</span>markdown<span class="token punctuation">(</span>prompt<span class="token punctuation">)</span>
+
+        <span class="token comment"># Prepara a ricevere la risposta dell'assistente</span>
+        <span class="token keyword">with</span> st<span class="token punctuation">.</span>chat_message<span class="token punctuation">(</span><span class="token string">"assistant"</span><span class="token punctuation">,</span> avatar<span class="token operator">=</span>st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>ai_avatar_url<span class="token punctuation">)</span><span class="token punctuation">:</span>
+            message_placeholder <span class="token operator">=</span> st<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+            <span class="token comment"># La logica dello streaming sarà implementata qui</span>
+</code></pre>
+<ul>
+<li><strong>Visualizzazione dei Messaggi</strong>: Itera sulla cronologia dei messaggi e visualizza ciascun messaggio con l’avatar appropriato.</li>
+<li><strong>Acquisizione dell’Input Utente</strong>: Utilizza <code>st.chat_input</code> per ricevere nuovi messaggi dall’utente.</li>
+<li><strong>Aggiornamento della Cronologia dei Messaggi</strong>: Aggiunge il nuovo messaggio dell’utente allo stato della sessione.</li>
+<li><strong>Limitazione della Dimensione della Cronologia</strong>: Mantiene solo gli ultimi 10 messaggi per le prestazioni.</li>
+<li><strong>Placeholder dei Messaggi</strong>: Crea un placeholder per visualizzare la risposta in streaming dell’assistente.</li>
+</ul>
+<hr>
+<h3 id="preparazione-della-richiesta-api">4. Preparazione della Richiesta API</h3>
+<pre class=" language-python"><code class="prism  language-python">s <span class="token operator">=</span> requests<span class="token punctuation">.</span>Session<span class="token punctuation">(</span><span class="token punctuation">)</span>
+full_response <span class="token operator">=</span> <span class="token string">""</span>
+url <span class="token operator">=</span> <span class="token string">"http://34.140.110.56:8100/chains/stream_chain"</span>
+payload <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"hf-embeddings__chat-openai_qa-chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"query"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"input"</span><span class="token punctuation">:</span> prompt<span class="token punctuation">,</span>
+        <span class="token string">"chat_history"</span><span class="token punctuation">:</span> st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"inference_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ul>
+<li><strong><code>requests.Session()</code></strong>: Crea un oggetto sessione per mantenere alcuni parametri tra le richieste.</li>
+<li><strong><code>full_response</code></strong>: Una stringa per accumulare la risposta dell’assistente.</li>
+<li><strong><code>url</code></strong>: L’endpoint dell’API che supporta lo streaming.</li>
+<li><strong><code>payload</code></strong>: I dati inviati all’API, inclusi l’input dell’utente e la cronologia della chat.</li>
+</ul>
+<hr>
+<h3 id="invio-della-richiesta-e-ricezione-della-risposta-in-modalità-streaming">5. Invio della Richiesta e Ricezione della Risposta in Modalità Streaming</h3>
+<pre class=" language-python"><code class="prism  language-python">non_decoded_chunk <span class="token operator">=</span> b<span class="token string">''</span>
+<span class="token keyword">with</span> s<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>payload<span class="token punctuation">,</span> headers<span class="token operator">=</span><span class="token boolean">None</span><span class="token punctuation">,</span> stream<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span> <span class="token keyword">as</span> resp<span class="token punctuation">:</span>
+    <span class="token keyword">for</span> chunk <span class="token keyword">in</span> resp<span class="token punctuation">.</span>iter_lines<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">if</span> chunk<span class="token punctuation">:</span>
+            <span class="token comment"># Elabora ciascun chunk qui</span>
+</code></pre>
+<ul>
+<li><strong><code>stream=True</code></strong>: Indica alla libreria <code>requests</code> di effettuare lo streaming della risposta.</li>
+<li><strong><code>resp.iter_lines()</code></strong>: Restituisce un iteratore che produce una linea alla volta dalla risposta.</li>
+<li><strong><code>non_decoded_chunk</code></strong>: Un buffer per accumulare byte che possono rappresentare dati parziali.</li>
+</ul>
+<hr>
+<h3 id="elaborazione-di-ciascun-chunk-della-risposta">6. Elaborazione di Ciascun Chunk della Risposta</h3>
+<h4 id="verifica-della-presenza-di-dati-rilevanti">Verifica della Presenza di Dati Rilevanti</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">if</span> chunk<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span>startswith<span class="token punctuation">(</span><span class="token triple-quoted-string string">'''  "answer":'''</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+</code></pre>
+<ul>
+<li><strong>Decodifica del Chunk</strong>: Converte i byte in una stringa per l’ispezione.</li>
+<li><strong>Filtraggio dei Chunk</strong>: Elabora solo i chunk che contengono il campo <code>"answer"</code>.</li>
+</ul>
+<h4 id="parsing-e-accumulo-della-risposta">Parsing e Accumulo della Risposta</h4>
+<pre class=" language-python"><code class="prism  language-python">chunk <span class="token operator">=</span> <span class="token string">"{"</span> <span class="token operator">+</span> chunk<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">+</span> <span class="token string">"}"</span>
+chunk <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>chunk<span class="token punctuation">)</span>
+chunk <span class="token operator">=</span> chunk<span class="token punctuation">[</span><span class="token string">"answer"</span><span class="token punctuation">]</span>
+chunk <span class="token operator">=</span> chunk<span class="token punctuation">.</span>encode<span class="token punctuation">(</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>chunk<span class="token punctuation">)</span>
+non_decoded_chunk <span class="token operator">+=</span> chunk
+</code></pre>
+<ul>
+<li><strong>Ricostruzione di JSON Valido</strong>: Racchiude il chunk tra parentesi graffe per formare un oggetto JSON valido.</li>
+<li><strong>Caricamento dei Dati JSON</strong>: Analizza la stringa JSON in un dizionario Python.</li>
+<li><strong>Estrazione della Risposta</strong>: Recupera il valore associato alla chiave <code>"answer"</code>.</li>
+<li><strong>Riconversione in Byte</strong>: Converte la stringa di risposta nuovamente in byte per l’accumulo.</li>
+<li><strong>Accumulazione dei Chunk</strong>: Aggiunge i byte a <code>non_decoded_chunk</code> per gestire dati incompleti.</li>
+</ul>
+<h4 id="tentativo-di-decodifica-e-visualizzazione-della-risposta">Tentativo di Decodifica e Visualizzazione della Risposta</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">try</span><span class="token punctuation">:</span>
+    full_response <span class="token operator">+=</span> non_decoded_chunk<span class="token punctuation">.</span>decode<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    message_placeholder<span class="token punctuation">.</span>markdown<span class="token punctuation">(</span>full_response <span class="token operator">+</span> <span class="token string">"▌"</span><span class="token punctuation">,</span> unsafe_allow_html<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    non_decoded_chunk <span class="token operator">=</span> b<span class="token string">''</span>
+<span class="token keyword">except</span> UnicodeDecodeError<span class="token punctuation">:</span>
+    <span class="token comment"># Sequenza UTF-8 incompleta; attende più dati</span>
+    <span class="token keyword">pass</span>
+</code></pre>
+<ul>
+<li><strong>Decodifica dei Byte Accumulati</strong>: Tenta di decodificare <code>non_decoded_chunk</code> in una stringa.</li>
+<li><strong>Aggiornamento della Risposta Completa</strong>: Aggiunge la stringa decodificata a <code>full_response</code>.</li>
+<li><strong>Aggiornamento dell’Interfaccia Utente</strong>: Visualizza lo stato corrente di <code>full_response</code> con un cursore (<code>▌</code>).</li>
+<li><strong>Reset del Buffer dei Chunk</strong>: Pulisce <code>non_decoded_chunk</code> dopo una decodifica riuscita.</li>
+<li><strong>Gestione degli Errori di Decodifica</strong>: Se si verifica un <code>UnicodeDecodeError</code>, significa che i dati sono incompleti, quindi lo script attende altri chunk.</li>
+</ul>
+<hr>
+<h3 id="finalizzazione-della-visualizzazione-della-risposta">7. Finalizzazione della Visualizzazione della Risposta</h3>
+<pre class=" language-python"><code class="prism  language-python">message_placeholder<span class="token punctuation">.</span>markdown<span class="token punctuation">(</span>full_response<span class="token punctuation">)</span>
+st<span class="token punctuation">.</span>session_state<span class="token punctuation">.</span>messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"assistant"</span><span class="token punctuation">,</span> <span class="token string">"content"</span><span class="token punctuation">:</span> full_response<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre>
+<ul>
+<li><strong>Rimozione del Cursore</strong>: Aggiorna il placeholder per visualizzare la risposta completa senza il cursore.</li>
+<li><strong>Aggiornamento della Cronologia dei Messaggi</strong>: Aggiunge la risposta completa dell’assistente allo stato della sessione.</li>
+</ul>
+<hr>
+<h2 id="concetti-chiave-e-componenti">Concetti Chiave e Componenti</h2>
+<h3 id="streaming-con-requests">Streaming con <code>requests</code></h3>
+<ul>
+<li><strong><code>stream=True</code></strong>: Abilita lo streaming del contenuto della risposta. La connessione rimane aperta e i dati possono essere letti in modo incrementale.</li>
+<li><strong>Vantaggi</strong>:
+<ul>
+<li>Riduce l’utilizzo della memoria evitando di caricare l’intera risposta in una volta.</li>
+<li>Consente l’elaborazione e la visualizzazione in tempo reale dei dati.</li>
+</ul>
+</li>
+</ul>
+<h3 id="iterazione-sui-dati-di-risposta">Iterazione sui Dati di Risposta</h3>
+<ul>
+<li><strong><code>resp.iter_lines()</code></strong>: Un modo efficiente per iterare sulle linee nella risposta. Gestisce il buffering dei dati per garantire che le linee non siano suddivise a metà.</li>
+<li><strong>Elaborazione dei Chunk</strong>: Ogni chunk rappresenta un pezzo di dati che può o meno essere un messaggio completo.</li>
+</ul>
+<h3 id="gestione-di-dati-parziali-e-codifica">Gestione di Dati Parziali e Codifica</h3>
+<ul>
+<li><strong>Accumulazione dei Byte</strong>: Poiché i dati possono arrivare in chunk incompleti, i byte vengono accumulati fino a formare una sequenza completa e decodificabile.</li>
+<li><strong>Sfide di Decodifica</strong>: Le sequenze UTF-8 possono essere suddivise tra chunk, portando a errori di decodifica.</li>
+<li><strong>Gestione degli Errori</strong>:
+<ul>
+<li>Utilizza un blocco <code>try-except</code> per catturare <code>UnicodeDecodeError</code>.</li>
+<li>Continua ad accumulare dati finché non possono essere decodificati con successo.</li>
+</ul>
+</li>
+</ul>
+<h3 id="aggiornamenti-in-tempo-reale-dellinterfaccia-con-streamlit">Aggiornamenti in Tempo Reale dell’Interfaccia con Streamlit</h3>
+<ul>
+<li><strong><code>st.empty()</code></strong>: Crea un placeholder nell’app Streamlit che può essere aggiornato dinamicamente.</li>
+<li><strong>Visualizzazione della Risposta</strong>:
+<ul>
+<li>Il placeholder viene aggiornato con la risposta dell’assistente man mano che nuovi dati arrivano.</li>
+<li>Viene aggiunto un cursore (<code>▌</code>) per indicare che la risposta è ancora in corso.</li>
+</ul>
+</li>
+<li><strong>Finalizzazione della Visualizzazione</strong>: Una volta ricevuti tutti i dati, il cursore viene rimosso.</li>
+</ul>
+<hr>
+<h3 id="esempi-in-altri-linguaggi">Esempi in Altri Linguaggi</h3>
+<h4 id="javascript-node.js">JavaScript (Node.js)</h4>
+<pre class=" language-javascript"><code class="prism  language-javascript"><span class="token keyword">const</span> http <span class="token operator">=</span> <span class="token function">require</span><span class="token punctuation">(</span><span class="token string">'http'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> options <span class="token operator">=</span> <span class="token punctuation">{</span>
+  hostname<span class="token punctuation">:</span> <span class="token string">'34.140.110.56'</span><span class="token punctuation">,</span>
+  port<span class="token punctuation">:</span> <span class="token number">8100</span><span class="token punctuation">,</span>
+  path<span class="token punctuation">:</span> <span class="token string">'/chains/stream_chain'</span><span class="token punctuation">,</span>
+  method<span class="token punctuation">:</span> <span class="token string">'POST'</span><span class="token punctuation">,</span>
+  headers<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span><span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> req <span class="token operator">=</span> http<span class="token punctuation">.</span><span class="token function">request</span><span class="token punctuation">(</span>options<span class="token punctuation">,</span> <span class="token punctuation">(</span>res<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  res<span class="token punctuation">.</span><span class="token function">setEncoding</span><span class="token punctuation">(</span><span class="token string">'utf8'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token keyword">let</span> nonDecodedChunk <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+  res<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'data'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>chunk<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    nonDecodedChunk <span class="token operator">+=</span> chunk<span class="token punctuation">;</span>
+    <span class="token comment">// Processa nonDecodedChunk per estrarre messaggi completi</span>
+    <span class="token comment">// Aggiorna l'interfaccia utente di conseguenza</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+req<span class="token punctuation">.</span><span class="token function">on</span><span class="token punctuation">(</span><span class="token string">'error'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span>e<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  console<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token template-string"><span class="token string">`Problema con la richiesta: </span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span>e<span class="token punctuation">.</span>message<span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">`</span></span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">const</span> payload <span class="token operator">=</span> JSON<span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  chain_id<span class="token punctuation">:</span> <span class="token string">'hf-embeddings__chat-openai_qa-chain'</span><span class="token punctuation">,</span>
+  query<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    input<span class="token punctuation">:</span> userInput<span class="token punctuation">,</span>
+    chat_history<span class="token punctuation">:</span> chatHistory<span class="token punctuation">,</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  inference_kwargs<span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+req<span class="token punctuation">.</span><span class="token function">write</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">;</span>
+req<span class="token punctuation">.</span><span class="token function">end</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<ul>
+<li><strong><code>http.request</code></strong>: Invia una richiesta HTTP con la possibilità di gestire risposte in streaming.</li>
+<li><strong>Gestori di Eventi</strong>: <code>res.on('data', callback)</code> viene utilizzato per elaborare i chunk di dati in arrivo.</li>
+</ul>
+<h4 id="java">Java</h4>
+<pre class=" language-java"><code class="prism  language-java"><span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>http<span class="token punctuation">.</span>HttpClient<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>http<span class="token punctuation">.</span>HttpRequest<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>net<span class="token punctuation">.</span>http<span class="token punctuation">.</span>HttpResponse<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>nio<span class="token punctuation">.</span>ByteBuffer<span class="token punctuation">;</span>
+<span class="token keyword">import</span> java<span class="token punctuation">.</span>util<span class="token punctuation">.</span>concurrent<span class="token punctuation">.</span>Flow<span class="token punctuation">;</span>
+
+HttpClient client <span class="token operator">=</span> HttpClient<span class="token punctuation">.</span><span class="token function">newHttpClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+HttpRequest request <span class="token operator">=</span> HttpRequest<span class="token punctuation">.</span><span class="token function">newBuilder</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">uri</span><span class="token punctuation">(</span>URI<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token string">"http://34.140.110.56:8100/chains/stream_chain"</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">header</span><span class="token punctuation">(</span><span class="token string">"Content-Type"</span><span class="token punctuation">,</span> <span class="token string">"application/json"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">POST</span><span class="token punctuation">(</span>HttpRequest<span class="token punctuation">.</span>BodyPublishers<span class="token punctuation">.</span><span class="token function">ofString</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">.</span><span class="token function">build</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+client<span class="token punctuation">.</span><span class="token function">sendAsync</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> HttpResponse<span class="token punctuation">.</span>BodyHandlers<span class="token punctuation">.</span><span class="token function">ofByteArrayConsumer</span><span class="token punctuation">(</span><span class="token punctuation">(</span>respInfo<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">&gt;</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token class-name">Flow<span class="token punctuation">.</span>Subscriber</span><span class="token operator">&lt;</span>ByteBuffer<span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">private</span> ByteBuffer nonDecodedChunk <span class="token operator">=</span> ByteBuffer<span class="token punctuation">.</span><span class="token function">allocate</span><span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onSubscribe</span><span class="token punctuation">(</span>Flow<span class="token punctuation">.</span>Subscription subscription<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            subscription<span class="token punctuation">.</span><span class="token function">request</span><span class="token punctuation">(</span>Long<span class="token punctuation">.</span>MAX_VALUE<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onNext</span><span class="token punctuation">(</span>ByteBuffer item<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// Accumula i byte</span>
+            nonDecodedChunk<span class="token punctuation">.</span><span class="token function">put</span><span class="token punctuation">(</span>item<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token comment">// Tenta di decodificare ed elaborare i dati</span>
+            <span class="token comment">// Aggiorna l'interfaccia utente di conseguenza</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onError</span><span class="token punctuation">(</span>Throwable throwable<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            throwable<span class="token punctuation">.</span><span class="token function">printStackTrace</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token annotation punctuation">@Override</span>
+        <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">onComplete</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment">// Finalizza la visualizzazione della risposta</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+</code></pre>
+<ul>
+<li><strong><code>HttpClient</code> con Async</strong>: Invia la richiesta in modo asincrono e gestisce la risposta in modo non bloccante.</li>
+<li><strong>Flow API</strong>: Utilizzata per gestire dati in streaming con stream reattivi.</li>
+</ul>
+<h4 id="c">C#</h4>
+<pre class=" language-csharp"><code class="prism  language-csharp"><span class="token keyword">using</span> System<span class="token punctuation">;</span>
+<span class="token keyword">using</span> System<span class="token punctuation">.</span>Net<span class="token punctuation">.</span>Http<span class="token punctuation">;</span>
+<span class="token keyword">using</span> System<span class="token punctuation">.</span>Threading<span class="token punctuation">.</span>Tasks<span class="token punctuation">;</span>
+
+HttpClient client <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HttpClient</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> request <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">HttpRequestMessage</span><span class="token punctuation">(</span>HttpMethod<span class="token punctuation">.</span>Post<span class="token punctuation">,</span> <span class="token string">"http://34.140.110.56:8100/chains/stream_chain"</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    Content <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StringContent</span><span class="token punctuation">(</span>payload<span class="token punctuation">,</span> Encoding<span class="token punctuation">.</span>UTF8<span class="token punctuation">,</span> <span class="token string">"application/json"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+<span class="token keyword">var</span> response <span class="token operator">=</span> <span class="token keyword">await</span> client<span class="token punctuation">.</span><span class="token function">SendAsync</span><span class="token punctuation">(</span>request<span class="token punctuation">,</span> HttpCompletionOption<span class="token punctuation">.</span>ResponseHeadersRead<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token keyword">var</span> stream <span class="token operator">=</span> <span class="token keyword">await</span> response<span class="token punctuation">.</span>Content<span class="token punctuation">.</span><span class="token function">ReadAsStreamAsync</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">using</span> <span class="token keyword">var</span> reader <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">StreamReader</span><span class="token punctuation">(</span>stream<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">string</span> line<span class="token punctuation">;</span>
+<span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token punctuation">(</span>line <span class="token operator">=</span> <span class="token keyword">await</span> reader<span class="token punctuation">.</span><span class="token function">ReadLineAsync</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">!=</span> <span class="token keyword">null</span><span class="token punctuation">)</span>
+<span class="token punctuation">{</span>
+    <span class="token comment">// Accumula ed elabora i dati</span>
+    <span class="token comment">// Aggiorna l'interfaccia utente di conseguenza</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ul>
+<li><strong><code>HttpCompletionOption.ResponseHeadersRead</code></strong>: Garantisce che il contenuto non venga bufferizzato e possa essere letto come stream.</li>
+<li><strong>Lettura delle Linee</strong>: Legge la risposta linea per linea, simile a <code>iter_lines()</code> in Python.</li>
+</ul>
+<h4 id="angular-typescript">Angular (TypeScript)</h4>
+<p>In Angular, si può utilizzare il servizio <code>HttpClient</code> per effettuare richieste HTTP. Tuttavia, per gestire le risposte in streaming, è necessario utilizzare l’API di basso livello <code>XMLHttpRequest</code> o le <code>Fetch API</code>.</p>
+<p>Esempio utilizzando <code>Fetch API</code> con <code>ReadableStream</code>:</p>
+<pre class=" language-typescript"><code class="prism  language-typescript"><span class="token keyword">import</span> <span class="token punctuation">{</span> Component <span class="token punctuation">}</span> <span class="token keyword">from</span> <span class="token string">'@angular/core'</span><span class="token punctuation">;</span>
+
+@<span class="token function">Component</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+  selector<span class="token punctuation">:</span> <span class="token string">'app-chat'</span><span class="token punctuation">,</span>
+  template<span class="token punctuation">:</span> <span class="token template-string"><span class="token string">`
+    &lt;div&gt;{{ responseText }}&lt;/div&gt;
+  `</span></span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token keyword">export</span> <span class="token keyword">class</span> <span class="token class-name">ChatComponent</span> <span class="token punctuation">{</span>
+  responseText <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+
+  <span class="token function">sendMessage</span><span class="token punctuation">(</span>prompt<span class="token punctuation">:</span> <span class="token keyword">string</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> url <span class="token operator">=</span> <span class="token string">'http://34.140.110.56:8100/chains/stream_chain'</span><span class="token punctuation">;</span>
+    <span class="token keyword">const</span> payload <span class="token operator">=</span> <span class="token punctuation">{</span>
+      chain_id<span class="token punctuation">:</span> <span class="token string">'hf-embeddings__chat-openai_qa-chain'</span><span class="token punctuation">,</span>
+      query<span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        input<span class="token punctuation">:</span> prompt<span class="token punctuation">,</span>
+        chat_history<span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token comment">// Inserire la cronologia della chat se disponibile</span>
+      <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      inference_kwargs<span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+    <span class="token function">fetch</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span> <span class="token punctuation">{</span>
+      method<span class="token punctuation">:</span> <span class="token string">'POST'</span><span class="token punctuation">,</span>
+      headers<span class="token punctuation">:</span> <span class="token punctuation">{</span> <span class="token string">'Content-Type'</span><span class="token punctuation">:</span> <span class="token string">'application/json'</span> <span class="token punctuation">}</span><span class="token punctuation">,</span>
+      body<span class="token punctuation">:</span> JSON<span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>payload<span class="token punctuation">)</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span>response<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token keyword">const</span> reader <span class="token operator">=</span> response<span class="token punctuation">.</span>body<span class="token operator">!</span><span class="token punctuation">.</span><span class="token function">getReader</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">const</span> decoder <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">TextDecoder</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">let</span> nonDecodedChunk <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">const</span> <span class="token function-variable function">read</span> <span class="token operator">=</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+          reader<span class="token punctuation">.</span><span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span><span class="token punctuation">(</span><span class="token punctuation">{</span> done<span class="token punctuation">,</span> value <span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>done<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+              <span class="token keyword">return</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token keyword">const</span> chunk <span class="token operator">=</span> decoder<span class="token punctuation">.</span><span class="token function">decode</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            nonDecodedChunk <span class="token operator">+=</span> chunk<span class="token punctuation">;</span>
+
+            <span class="token comment">// Processa nonDecodedChunk per estrarre messaggi completi</span>
+            <span class="token comment">// Aggiorna l'interfaccia utente</span>
+            <span class="token keyword">this</span><span class="token punctuation">.</span>responseText <span class="token operator">+=</span> nonDecodedChunk<span class="token punctuation">;</span>
+            nonDecodedChunk <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+
+            <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+          <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span><span class="token punctuation">;</span>
+
+        <span class="token function">read</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+      <span class="token punctuation">.</span><span class="token keyword">catch</span><span class="token punctuation">(</span><span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        console<span class="token punctuation">.</span><span class="token function">error</span><span class="token punctuation">(</span><span class="token string">'Errore:'</span><span class="token punctuation">,</span> error<span class="token punctuation">)</span><span class="token punctuation">;</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<ul>
+<li><strong><code>fetch</code></strong>: Utilizza le Fetch API per effettuare richieste HTTP.</li>
+<li><strong><code>ReadableStream</code></strong>: Legge la risposta in streaming tramite un reader.</li>
+<li><strong>Aggiornamento dell’Interfaccia</strong>: <code>this.responseText</code> viene aggiornato man mano che i dati arrivano.</li>
+</ul>
+<h4 id="php">PHP</h4>
+<p>In PHP, per gestire risposte in streaming, si può utilizzare la libreria <code>cURL</code> con opzioni di basso livello. Tuttavia, l’ambiente PHP non è ideale per applicazioni client in tempo reale, ma è possibile utilizzare <code>curl_multi</code> o <code>Guzzle</code> per gestire richieste asincrone.</p>
+<p>Esempio utilizzando <code>Guzzle</code> con <code>sink</code> per lo streaming:</p>
+<pre class=" language-php"><code class="prism  language-php"><span class="token php language-php"><span class="token delimiter important">&lt;?php</span>
+<span class="token keyword">require</span> <span class="token string">'vendor/autoload.php'</span><span class="token punctuation">;</span>
+
+<span class="token keyword">use</span> <span class="token package">GuzzleHttp<span class="token punctuation">\</span>Client</span><span class="token punctuation">;</span>
+<span class="token keyword">use</span> <span class="token package">Psr<span class="token punctuation">\</span>Http<span class="token punctuation">\</span>Message<span class="token punctuation">\</span>StreamInterface</span><span class="token punctuation">;</span>
+
+<span class="token variable">$client</span> <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token class-name">Client</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token variable">$url</span> <span class="token operator">=</span> <span class="token string">'http://34.140.110.56:8100/chains/stream_chain'</span><span class="token punctuation">;</span>
+
+<span class="token variable">$payload</span> <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token string">'chain_id'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token string">'hf-embeddings__chat-openai_qa-chain'</span><span class="token punctuation">,</span>
+    <span class="token string">'query'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span>
+        <span class="token string">'input'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$userInput</span><span class="token punctuation">,</span>
+        <span class="token string">'chat_history'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$chatHistory</span><span class="token punctuation">,</span> <span class="token comment">// Inserire la cronologia della chat se disponibile</span>
+    <span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">'inference_kwargs'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token variable">$response</span> <span class="token operator">=</span> <span class="token variable">$client</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">request</span><span class="token punctuation">(</span><span class="token string">'POST'</span><span class="token punctuation">,</span> <span class="token variable">$url</span><span class="token punctuation">,</span> <span class="token punctuation">[</span>
+    <span class="token string">'json'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token variable">$payload</span><span class="token punctuation">,</span>
+    <span class="token string">'stream'</span> <span class="token operator">=</span><span class="token operator">&gt;</span> <span class="token boolean">true</span><span class="token punctuation">,</span>
+<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token variable">$body</span> <span class="token operator">=</span> <span class="token variable">$response</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">getBody</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span><span class="token variable">$body</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">eof</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token variable">$chunk</span> <span class="token operator">=</span> <span class="token variable">$body</span><span class="token operator">-</span><span class="token operator">&gt;</span><span class="token function">read</span><span class="token punctuation">(</span><span class="token number">1024</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token comment">// Accumula ed elabora i dati</span>
+    <span class="token comment">// Aggiorna l'interfaccia utente di conseguenza</span>
+    <span class="token keyword">echo</span> <span class="token variable">$chunk</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+</span></code></pre>
+<ul>
+<li><strong><code>GuzzleHttp\Client</code></strong>: Una libreria HTTP client per PHP.</li>
+<li><strong><code>'stream' =&gt; true</code></strong>: Abilita lo streaming della risposta.</li>
+<li><strong>Lettura dei Dati</strong>: Utilizza <code>$body-&gt;read()</code> per leggere i chunk di dati.</li>
+<li><strong>Aggiornamento dell’Interfaccia</strong>: In un contesto web, potrebbe essere necessario utilizzare tecniche come SSE (Server-Sent Events) o WebSocket per inviare i dati al client in tempo reale.</li>
+</ul>
+<hr>
+<h3 id="considerazioni-per-ladattamento">Considerazioni per l’Adattamento</h3>
+<ul>
+<li><strong>Threading e Concorrenza</strong>: Assicurarsi che gli aggiornamenti dell’interfaccia utente vengano eseguiti nel thread principale se richiesto dal framework.</li>
+<li><strong>Codifica dei Dati</strong>: Gestire correttamente la codifica dei caratteri per evitare errori durante la decodifica dei byte in stringhe.</li>
+<li><strong>Gestione del Buffer</strong>: Implementare strategie di buffering efficienti per gestire dati parziali.</li>
+<li><strong>Gestione degli Errori</strong>: Fornire meccanismi robusti per gestire errori di rete, timeout e incoerenze nei dati.</li>
+<li><strong>Reattività dell’Interfaccia Utente</strong>: Evitare operazioni bloccanti nel thread dell’interfaccia utente per mantenerla reattiva.</li>
+</ul>
+</div>
+</body>
+
+</html>

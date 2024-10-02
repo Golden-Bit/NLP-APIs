@@ -1,0 +1,438 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_docstores</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-document-store-management-system">API Documentation for Document Store Management System</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for managing documents and their metadata within MongoDB collections. It supports creating, retrieving, updating, deleting, and searching documents, as well as managing collection metadata.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8102
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="create-document">1. Create Document</h3>
+<h4 id="post-documentscollection_name"><code>POST /documents/{collection_name}/</code></h4>
+<p>Creates a new document in the specified collection.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>doc</code> (DocumentModel): The document to create.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the created document with an added unique ID in its metadata.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8102/documents/example_collection/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "page_content": "This is the content of the document.",
+  "metadata": {"author": "John Doe", "category": "Research"},
+  "type": "Document"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+    <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+    <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="retrieve-document">2. Retrieve Document</h3>
+<h4 id="get-documentscollection_namedoc_id"><code>GET /documents/{collection_name}/{doc_id}</code></h4>
+<p>Retrieves a document by its ID from the specified collection.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+<li><code>doc_id</code> (str): The ID of the document to retrieve. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the document with its content and metadata.</li>
+<li>404 Not Found: Document not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8102/documents/example_collection/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+    <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+    <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="delete-document">3. Delete Document</h3>
+<h4 id="delete-documentscollection_namedoc_id"><code>DELETE /documents/{collection_name}/{doc_id}</code></h4>
+<p>Deletes a document by its ID from the specified collection.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+<li><code>doc_id</code> (str): The ID of the document to delete. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Document deleted successfully.</li>
+<li>404 Not Found: Document not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8102/documents/example_collection/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Document deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="update-document">4. Update Document</h3>
+<h4 id="put-documentscollection_namedoc_id"><code>PUT /documents/{collection_name}/{doc_id}</code></h4>
+<p>Updates an existing document by its ID in the specified collection.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+<li><code>doc_id</code> (str): The ID of the document to update. Example: “abcd1234-efgh-5678-ijkl-9012mnop3456”.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>doc</code> (DocumentModel): The updated document data.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the updated document data.</li>
+<li>404 Not Found: Document not found.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X PUT <span class="token string">"http://localhost:8102/documents/example_collection/abcd1234-efgh-5678-ijkl-9012mnop3456"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "page_content": "This is the updated content of the document.",
+  "metadata": {"author": "John Doe", "category": "Research"},
+  "type": "Document"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the updated content of the document."</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+    <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+    <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-documents">5. List Documents</h3>
+<h4 id="get-documentscollection_name"><code>GET /documents/{collection_name}/</code></h4>
+<p>Lists documents in the specified collection with pagination.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+</ul>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>prefix</code> (optional, str): Prefix to filter documents. Example: “prefix_”.</li>
+<li><code>skip</code> (int): Number of documents to skip. Default is 0.</li>
+<li><code>limit</code> (int): Maximum number of documents to return. Default is 10.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of documents with their content and metadata.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8102/documents/example_collection/?skip=0&amp;limit=10"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+      <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+      <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="search-documents">6. Search Documents</h3>
+<h4 id="get-searchcollection_name"><code>GET /search/{collection_name}/</code></h4>
+<p>Searches for documents by query in the specified collection with pagination.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+</ul>
+<p><strong>Query Parameters:</strong></p>
+<ul>
+<li><code>query</code> (str): The search query. Example: “search_term”.</li>
+<li><code>skip</code> (int): Number of documents to skip. Default is 0.</li>
+<li><code>limit</code> (int): Maximum number of documents to return. Default is 10.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of documents matching the search criteria.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8102/search/example_collection/?query=search_term&amp;skip=0&amp;limit=10"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+      <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+      <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="create-collection-metadata">7. Create Collection Metadata</h3>
+<h4 id="post-collectionscollection_namemetadata"><code>POST /collections/{collection_name}/metadata</code></h4>
+<p>Creates or updates metadata for a specified collection.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>metadata</code> (CollectionMetadataModel): Metadata for the collection.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the created or updated collection metadata.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8102/collections/example_collection/metadata"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "collection_name": "example_collection",
+  "description": "This collection contains research documents.",
+  "created_at": "2023-01-01T00:00:00Z",
+  "custom_metadata": {"project": "AI Research"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"example_collection"</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"This collection contains research documents."</span><span class="token punctuation">,</span>
+  <span class="token string">"created_at"</span><span class="token punctuation">:</span> <span class="token string">"2023-01-01T00:00:00Z"</span><span class="token punctuation">,</span>
+  <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="update-collection-metadata">8. Update Collection Metadata</h3>
+<h4 id="put-collectionscollection_namemetadata"><code>PUT /collections/{collection_name}/metadata</code></h4>
+<p>Updates metadata for a specified collection.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection. Example: “example_collection”.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>metadata</code> (CollectionMetadataModel): Updated metadata for the collection.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the updated collection metadata.</li>
+<li>404 Not Found: Collection metadata not found.</li>
+<li>400 Bad Request</li>
+</ul>
+<p>: Invalid input.</p>
+<ul>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X PUT <span class="token string">"http://localhost:8102/collections/example_collection/metadata"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "description": "This collection contains updated research documents.",
+  "custom_metadata": {"project": "Updated AI Research"}
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"example_collection"</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"This collection contains updated research documents."</span><span class="token punctuation">,</span>
+  <span class="token string">"created_at"</span><span class="token punctuation">:</span> <span class="token string">"2023-01-01T00:00:00Z"</span><span class="token punctuation">,</span>
+  <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"Updated AI Research"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-collections-metadata">9. List Collections Metadata</h3>
+<h4 id="get-collectionsmetadata"><code>GET /collections/metadata</code></h4>
+<p>Lists all collections and their metadata.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of all collections with their metadata.</li>
+<li>400 Bad Request: Invalid input.</li>
+<li>500 Internal Server Error: Server error.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8102/collections/metadata"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"example_collection"</span><span class="token punctuation">,</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"This collection contains research documents."</span><span class="token punctuation">,</span>
+    <span class="token string">"created_at"</span><span class="token punctuation">:</span> <span class="token string">"2023-01-01T00:00:00Z"</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<h3 id="documentmodel">DocumentModel</h3>
+<p>Model representing a document.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>page_content</code> (str): The content of the document.</li>
+<li><code>metadata</code> (dict): Metadata associated with the document.</li>
+<li><code>type</code> (str): The type of the document.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+  <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span>
+    <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">,</span>
+    <span class="token string">"doc_store_id"</span><span class="token punctuation">:</span> <span class="token string">"abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="collectionmetadatamodel">CollectionMetadataModel</h3>
+<p>Model representing metadata for a collection.</p>
+<p><strong>Attributes:</strong></p>
+<ul>
+<li><code>collection_name</code> (str): The name of the collection.</li>
+<li><code>description</code> (optional, str): Description of the collection.</li>
+<li><code>created_at</code> (optional, str): The creation date of the collection.</li>
+<li><code>custom_metadata</code> (optional, dict): Custom metadata for the collection.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"collection_name"</span><span class="token punctuation">:</span> <span class="token string">"example_collection"</span><span class="token punctuation">,</span>
+  <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"This collection contains research documents."</span><span class="token punctuation">,</span>
+  <span class="token string">"created_at"</span><span class="token punctuation">:</span> <span class="token string">"2023-01-01T00:00:00Z"</span><span class="token punctuation">,</span>
+  <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="create-a-document">1. Create a Document</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/documents/example_collection/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="retrieve-a-document">2. Retrieve a Document</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/documents/example_collection/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-a-document">3. Delete a Document</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/documents/example_collection/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="update-a-document">4. Update a Document</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/documents/example_collection/abcd1234-efgh-5678-ijkl-9012mnop3456"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"page_content"</span><span class="token punctuation">:</span> <span class="token string">"This is the updated content of the document."</span><span class="token punctuation">,</span>
+    <span class="token string">"metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"author"</span><span class="token punctuation">:</span> <span class="token string">"John Doe"</span><span class="token punctuation">,</span> <span class="token string">"category"</span><span class="token punctuation">:</span> <span class="token string">"Research"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"Document"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>put<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-documents-1">5. List Documents</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/documents/example_collection/?skip=0&amp;limit=10"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="search-documents-1">6. Search Documents</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/search/example_collection/?query=search_term&amp;skip=0&amp;limit=10"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="create-collection-metadata-1">7. Create Collection Metadata</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/collections/example_collection/metadata"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"This collection contains research documents."</span><span class="token punctuation">,</span>
+    <span class="token string">"created_at"</span><span class="token punctuation">:</span> <span class="token string">"2023-01-01T00:00:00Z"</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"AI Research"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="update-collection-metadata-1">8. Update Collection Metadata</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/collections/example_collection/metadata"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"This collection contains updated research documents."</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"project"</span><span class="token punctuation">:</span> <span class="token string">"Updated AI Research"</span><span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>put<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-collections-metadata-1">9. List Collections Metadata</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8102/collections/metadata"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

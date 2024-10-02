@@ -212,7 +212,7 @@ async def upload_file_to_contexts(file: UploadFile,
                 },
                 "embeddings_model_class": "OpenAIEmbeddings",
                 "embeddings_params": {
-                    "api_key": "......"  # Replace with actual API key or environment variable
+                    "api_key": "....."  # Replace with actual API key or environment variable
                 },
                 "description": f"Vector store for context {context}",
                 "custom_metadata": {
@@ -441,7 +441,7 @@ async def configure_and_load_chain(
             },
             "embeddings_model_class": "OpenAIEmbeddings",
             "embeddings_params": {
-                "api_key": "....."
+                "api_key": "...."
                 # Replace with actual API key or environment variable
             },
             "description": f"Vector store for context {context}",

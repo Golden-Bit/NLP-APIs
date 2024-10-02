@@ -1,0 +1,333 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_chains</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-chain-management-system">API Documentation for Chain Management System</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for configuring, managing, and executing chains. The API supports creating, retrieving, updating, and deleting chain configurations, as well as loading and unloading chains into memory and executing them.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8109
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="configure-chain">1. Configure Chain</h3>
+<h4 id="post-chainsconfigure_chain"><code>POST /chains/configure_chain/</code></h4>
+<p>Configures a new chain and stores its configuration.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chain configuration.</li>
+<li><code>chain_id</code> (str, required): The unique ID of the chain.</li>
+<li><code>prompt_id</code> (str, required): The unique ID of the prompt.</li>
+<li><code>llm_id</code> (str, required): The unique ID of the LLM.</li>
+<li><code>vectorstore_id</code> (str, required): The unique ID of the vectorstore.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the configuration ID of the newly created chain configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8109/chains/configure_chain/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chain_config",
+  "chain_id": "example_chain",
+  "prompt_id": "example_prompt",
+  "llm_id": "example_llm",
+  "vectorstore_id": "example_vectorstore"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="update-chain-configuration">2. Update Chain Configuration</h3>
+<h4 id="put-chainsupdate_chain_configconfig_id"><code>PUT /chains/update_chain_config/{config_id}</code></h4>
+<p>Updates an existing chain configuration.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the configuration to update.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chain configuration.</li>
+<li><code>chain_id</code> (str, required): The unique ID of the chain.</li>
+<li><code>prompt_id</code> (str, required): The unique ID of the prompt.</li>
+<li><code>llm_id</code> (str, required): The unique ID of the LLM.</li>
+<li><code>vectorstore_id</code> (str, required): The unique ID of the vectorstore.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the configuration ID of the updated chain configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X PUT <span class="token string">"http://localhost:8109/chains/update_chain_config/example_chain_config"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_chain_config",
+  "chain_id": "example_chain",
+  "prompt_id": "example_prompt",
+  "llm_id": "example_llm",
+  "vectorstore_id": "example_vectorstore"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="delete-chain-configuration">3. Delete Chain Configuration</h3>
+<h4 id="delete-chainsdelete_chain_configconfig_id"><code>DELETE /chains/delete_chain_config/{config_id}</code></h4>
+<p>Deletes a specific chain configuration.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chain configuration to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful deletion.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8109/chains/delete_chain_config/example_chain_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="load-chain">4. Load Chain</h3>
+<h4 id="post-chainsload_chainconfig_id"><code>POST /chains/load_chain/{config_id}</code></h4>
+<p>Loads a chain into memory based on its configuration ID.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chain configuration to load.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful loading.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8109/chains/load_chain/example_chain_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"message"</span><span class="token punctuation">:</span> <span class="token string">"Chain loaded successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="unload-chain">5. Unload Chain</h3>
+<h4 id="post-chainsunload_chainchain_id"><code>POST /chains/unload_chain/{chain_id}</code></h4>
+<p>Unloads a chain from memory.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>chain_id</code> (str, required): The unique ID of the chain to unload.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful unloading.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8109/chains/unload_chain/example_chain"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"message"</span><span class="token punctuation">:</span> <span class="token string">"Chain unloaded successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-loaded-chains">6. List Loaded Chains</h3>
+<h4 id="get-chainslist_loaded_chains"><code>GET /chains/list_loaded_chains/</code></h4>
+<p>Lists all currently loaded chains.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of loaded chain IDs.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8109/chains/list_loaded_chains/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token string">"example_chain"</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="list-chain-configurations">7. List Chain Configurations</h3>
+<h4 id="get-chainslist_chain_configs"><code>GET /chains/list_chain_configs/</code></h4>
+<p>Lists all chain configurations stored in MongoDB.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of chain configurations.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8109/chains/list_chain_configs/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"prompt_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt"</span><span class="token punctuation">,</span>
+    <span class="token string">"llm_id"</span><span class="token punctuation">:</span> <span class="token string">"example_llm"</span><span class="token punctuation">,</span>
+    <span class="token string">"vectorstore_id"</span><span class="token punctuation">:</span> <span class="token string">"example_vectorstore"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="get-chain-configuration">8. Get Chain Configuration</h3>
+<h4 id="get-chainschain_configconfig_id"><code>GET /chains/chain_config/{config_id}</code></h4>
+<p>Retrieves a specific chain configuration.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the chain configuration to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the chain configuration details.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8109/chains/chain_config/example_chain_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain_config"</span><span class="token punctuation">,</span>
+  <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain"</span><span class="token punctuation">,</span>
+  <span class="token string">"prompt_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt"</span><span class="token punctuation">,</span>
+  <span class="token string">"llm_id"</span><span class="token punctuation">:</span> <span class="token string">"example_llm"</span><span class="token punctuation">,</span>
+  <span class="token string">"vectorstore_id"</span><span class="token punctuation">:</span> <span class="token string">"example_vectorstore"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="execute-chain">9. Execute Chain</h3>
+<h4 id="post-chainsexecute_chain"><code>POST /chains/execute_chain/</code></h4>
+<p>Executes a specific chain.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>chain_id</code> (str, required): The unique ID of the chain to execute.</li>
+<li><code>query</code> (str, required): The input query for the chain.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the result of the chain execution.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8109/chains/execute_chain/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "chain_id": "example_chain",
+  "query": "What are the approaches to Task Decomposition?"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"result"</span><span class="token punctuation">:</span> <span class="token string">"The approaches to Task Decomposition are..."</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<p><strong>ChainConfigRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the chain configuration.</li>
+<li><code>chain_id</code> (str): The unique ID of the chain.</li>
+<li><code>prompt_id</code> (str): The unique ID of the prompt.</li>
+<li><code>llm_id</code> (str): The unique ID of the LLM.</li>
+<li><code>vectorstore_id</code> (str): The unique ID of the vectorstore.</li>
+</ul>
+<p><strong>ExecuteChainRequest</strong></p>
+<ul>
+<li><code>chain_id</code> (str): The unique ID of the chain to execute.</li>
+<li><code>query</code> (str): The input query for the chain.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="configure-chain-1">1. Configure Chain</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/configure_chain/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"prompt_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt"</span><span class="token punctuation">,</span>
+    <span class="token string">"llm_id"</span><span class="token punctuation">:</span> <span class="token string">"example_llm"</span><span class="token punctuation">,</span>
+    <span class="token string">"vectorstore_id"</span><span class="token punctuation">:</span> <span class="token string">"example_vectorstore"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="update-chain-configuration-1">2. Update Chain Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/update_chain_config/example_chain_config"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"prompt_id"</span><span class="token punctuation">:</span> <span class="token string">"example_prompt"</span><span class="token punctuation">,</span>
+    <span class="token string">"llm_id"</span><span class="token punctuation">:</span> <span class="token string">"example_llm"</span><span class="token punctuation">,</span>
+    <span class="token string">"vectorstore_id"</span><span class="token punctuation">:</span> <span class="token string">"example_vectorstore"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>put<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-chain-configuration-1">3. Delete Chain Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/delete_chain_config/example_chain_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="load-chain-1">4. Load Chain</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/load_chain/example_chain_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="unload-chain-1">5. Unload Chain</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/unload_chain/example_chain"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-loaded-chains-1">6. List Loaded Chains</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> "
+
+http<span class="token punctuation">:</span><span class="token operator">//</span>localhost<span class="token punctuation">:</span><span class="token number">8109</span><span class="token operator">/</span>chains<span class="token operator">/</span>list_loaded_chains<span class="token operator">/</span>"
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-chain-configurations-1">7. List Chain Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/list_chain_configs/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-chain-configuration-1">8. Get Chain Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/chain_config/example_chain_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="execute-chain-1">9. Execute Chain</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8109/chains/execute_chain/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"example_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"query"</span><span class="token punctuation">:</span> <span class="token string">"What are the approaches to Task Decomposition?"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>

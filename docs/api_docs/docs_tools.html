@@ -1,0 +1,427 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>docs_tools</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="api-documentation-for-tool-management-system">API Documentation for Tool Management System</h1>
+<h2 id="overview">Overview</h2>
+<p>This API provides endpoints for configuring, managing, and executing tools. The API supports creating, retrieving, updating, and deleting tool configurations, as well as instantiating tools and executing methods on these instances.</p>
+<h2 id="base-url">Base URL</h2>
+<pre><code>http://localhost:8108
+</code></pre>
+<h2 id="endpoints">Endpoints</h2>
+<h3 id="add-tool-configuration">1. Add Tool Configuration</h3>
+<h4 id="post-toolsadd_tool_config"><code>POST /tools/add_tool_config/</code></h4>
+<p>Adds a new tool configuration to the database.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the tool configuration.</li>
+<li><code>tool_class</code> (str, required): The class of the tool (e.g., ‘OpenAITool’).</li>
+<li><code>tool_kwargs</code> (dict, optional): Additional keyword arguments for tool initialization.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message with the configuration ID of the newly created tool configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8108/tools/add_tool_config/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_tool_config",
+  "tool_class": "OpenAITool",
+  "tool_kwargs": {
+    "api_key": "your_api_key"
+  }
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="update-tool-configuration">2. Update Tool Configuration</h3>
+<h4 id="put-toolsupdate_tool_configconfig_id"><code>PUT /tools/update_tool_config/{config_id}</code></h4>
+<p>Updates an existing tool configuration in the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the tool configuration to update.</li>
+</ul>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the tool configuration.</li>
+<li><code>tool_class</code> (str, required): The class of the tool (e.g., ‘OpenAITool’).</li>
+<li><code>tool_kwargs</code> (dict, optional): Additional keyword arguments for tool initialization.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message with the configuration ID of the updated tool configuration.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X PUT <span class="token string">"http://localhost:8108/tools/update_tool_config/example_tool_config"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_tool_config",
+  "tool_class": "OpenAITool",
+  "tool_kwargs": {
+    "api_key": "your_new_api_key"
+  }
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="delete-tool-configuration">3. Delete Tool Configuration</h3>
+<h4 id="delete-toolsdelete_tool_configconfig_id"><code>DELETE /tools/delete_tool_config/{config_id}</code></h4>
+<p>Deletes a tool configuration from the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the tool configuration to delete.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful deletion.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://localhost:8108/tools/delete_tool_config/example_tool_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Configuration deleted successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-tool-configuration">4. Get Tool Configuration</h3>
+<h4 id="get-toolsget_tool_configconfig_id"><code>GET /tools/get_tool_config/{config_id}</code></h4>
+<p>Retrieves a tool configuration from the database.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The ID of the tool configuration to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the tool configuration details.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8108/tools/get_tool_config/example_tool_config"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span><span class="token punctuation">,</span>
+  <span class="token string">"tool_class"</span><span class="token punctuation">:</span> <span class="token string">"OpenAITool"</span><span class="token punctuation">,</span>
+  <span class="token string">"tool_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"api_key"</span><span class="token punctuation">:</span> <span class="token string">"your_api_key"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-tool-configurations">5. List Tool Configurations</h3>
+<h4 id="get-toolslist_tool_configs"><code>GET /tools/list_tool_configs/</code></h4>
+<p>Lists all tool configurations from the database.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of tool configurations.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8108/tools/list_tool_configs/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"tool_class"</span><span class="token punctuation">:</span> <span class="token string">"OpenAITool"</span><span class="token punctuation">,</span>
+    <span class="token string">"tool_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"api_key"</span><span class="token punctuation">:</span> <span class="token string">"your_api_key"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="instantiate-tool">6. Instantiate Tool</h3>
+<h4 id="post-toolsinstantiate_tool"><code>POST /tools/instantiate_tool/</code></h4>
+<p>Instantiates a tool based on its configuration.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>config_id</code> (str, required): The unique ID of the tool configuration.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the instantiated tool with its ID.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8108/tools/instantiate_tool/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "config_id": "example_tool_config"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"tool_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="remove-tool-instance">7. Remove Tool Instance</h3>
+<h4 id="post-toolsremove_tool_instance"><code>POST /tools/remove_tool_instance/</code></h4>
+<p>Removes a tool instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>tool_id</code> (str, required): The unique ID of the tool instance.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a success message upon successful removal.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8108/tools/remove_tool_instance/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "tool_id": "123e4567-e89b-12d3-a456-426614174000"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Tool instance removed successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-tool-instance">8. Get Tool Instance</h3>
+<h4 id="get-toolsget_tool_instancetool_id"><code>GET /tools/get_tool_instance/{tool_id}</code></h4>
+<p>Gets the JSON representation of a tool instance.</p>
+<p><strong>Path Parameters:</strong></p>
+<ul>
+<li><code>tool_id</code> (str, required): The unique ID of the tool instance.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the JSON representation of the tool instance.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8108/tools/get_tool_instance/123e4567-e89b-12d3-a456-426614174000"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"tool_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+  <span class="token string">"tool_class"</span><span class="token punctuation">:</span> <span class="token string">"OpenAITool"</span><span class="token punctuation">,</span>
+  <span class="token string">"tool_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"api_key"</span><span class="token punctuation">:</span> <span class="token string">"your_api_key"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="list-tool-instances">9. List Tool Instances</h3>
+<h4 id="get-toolslist_tool_instances"><code>GET /tools/list_tool_instances/</code></h4>
+<p>Lists all tool instance IDs.</p>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns a list of tool instance IDs.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://localhost:8108/tools/list_tool_instances/"</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+  <span class="token string">"987e6543-b21c-45d2-a456-789012345678"</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<h3 id="execute-method-on-tool-instance">10. Execute Method on Tool Instance</h3>
+<h4 id="post-toolsexecute_tool_method"><code>POST /tools/execute_tool_method/</code></h4>
+<p>Executes a method on a tool instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>tool_id</code> (str, required): The unique ID of the tool instance.</li>
+<li><code>method</code> (str, required): The name of the method to execute.</li>
+<li><code>args</code> (list, optional): The positional arguments for the method (if any).</li>
+<li><code>kwargs</code> (dict, optional): The keyword arguments for the method (if any).</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the result of the method execution.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8108/tools/execute_tool_method/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "tool_id": "123e4567-e89b-12d3-a456-426614174000",
+  "method": "method_name",
+  "args": [],
+  "kwargs": {
+    "param1": "value1",
+    "param2": "value2"
+  }
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"result"</span><span class="token punctuation">:</span> <span class="token string">"Method executed successfully"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h3 id="get-attribute-of-tool-instance">11. Get Attribute of Tool Instance</h3>
+<h4 id="post-toolsget_tool_attribute"><code>POST /tools/get_tool_attribute/</code></h4>
+<p>Gets an attribute of a tool instance.</p>
+<p><strong>Request Body:</strong></p>
+<ul>
+<li><code>tool_id</code> (str, required): The unique ID of the tool instance.</li>
+<li><code>attribute</code> (str, required): The name of the attribute to retrieve.</li>
+</ul>
+<p><strong>Response:</strong></p>
+<ul>
+<li>200 OK: Returns the value of the specified attribute.</li>
+</ul>
+<p><strong>Example Request:</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://localhost:8108/tools/get_tool_attribute/"</span> -H <span class="token string">"Content-Type: application/json"</span> -d <span class="token string">'{
+  "tool_id": "123e4567-e89b-12d3-a456-426614174000",
+  "attribute": "attribute_name"
+}'</span>
+</code></pre>
+<p><strong>Example Response:</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"attribute"</span><span class="token punctuation">:</span> <span class="token string">"Attribute value"</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<h2 id="models">Models</h2>
+<p><strong>ToolConfig</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the tool configuration.</li>
+<li><code>tool_class</code> (str): The class of the tool (e.g., ‘OpenAITool’).</li>
+<li><code>tool_kwargs</code> (dict): Additional keyword arguments for tool initialization.</li>
+</ul>
+<p><strong>ToolRequest</strong></p>
+<ul>
+<li><code>config_id</code> (str): The unique ID of the tool configuration.</li>
+<li><code>tool_id</code> (str, optional): The</li>
+</ul>
+<p>unique ID of the tool instance.</p>
+<p><strong>ExecuteMethodRequest</strong></p>
+<ul>
+<li><code>tool_id</code> (str): The unique ID of the tool instance.</li>
+<li><code>method</code> (str): The name of the method to execute.</li>
+<li><code>args</code> (list): The positional arguments for the method (if any).</li>
+<li><code>kwargs</code> (dict): The keyword arguments for the method (if any).</li>
+</ul>
+<p><strong>GetAttributeRequest</strong></p>
+<ul>
+<li><code>tool_id</code> (str): The unique ID of the tool instance.</li>
+<li><code>attribute</code> (str): The name of the attribute to retrieve.</li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>To use the API, you can make HTTP requests to the provided endpoints using tools like <code>curl</code>, Postman, or any HTTP client library in your preferred programming language.</p>
+<h3 id="usage-example-with-python">Usage Example with Python</h3>
+<p>Below is a Python example using the <code>requests</code> library to interact with the API:</p>
+<h4 id="add-tool-configuration-1">1. Add Tool Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/add_tool_config/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"tool_class"</span><span class="token punctuation">:</span> <span class="token string">"OpenAITool"</span><span class="token punctuation">,</span>
+    <span class="token string">"tool_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"api_key"</span><span class="token punctuation">:</span> <span class="token string">"your_api_key"</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="update-tool-configuration-1">2. Update Tool Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/update_tool_config/example_tool_config"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span><span class="token punctuation">,</span>
+    <span class="token string">"tool_class"</span><span class="token punctuation">:</span> <span class="token string">"OpenAITool"</span><span class="token punctuation">,</span>
+    <span class="token string">"tool_kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"api_key"</span><span class="token punctuation">:</span> <span class="token string">"your_new_api_key"</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>put<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="delete-tool-configuration-1">3. Delete Tool Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/delete_tool_config/example_tool_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>delete<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-tool-configuration-1">4. Get Tool Configuration</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/get_tool_config/example_tool_config"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-tool-configurations-1">5. List Tool Configurations</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/list_tool_configs/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="instantiate-tool-1">6. Instantiate Tool</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/instantiate_tool/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"config_id"</span><span class="token punctuation">:</span> <span class="token string">"example_tool_config"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="remove-tool-instance-1">7. Remove Tool Instance</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/remove_tool_instance/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"tool_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-tool-instance-1">8. Get Tool Instance</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/get_tool_instance/123e4567-e89b-12d3-a456-426614174000"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="list-tool-instances-1">9. List Tool Instances</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/list_tool_instances/"</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>get<span class="token punctuation">(</span>url<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="execute-method-on-tool-instance-1">10. Execute Method on Tool Instance</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/execute_tool_method/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"tool_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+    <span class="token string">"method"</span><span class="token punctuation">:</span> <span class="token string">"method_name"</span><span class="token punctuation">,</span>
+    <span class="token string">"args"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">"kwargs"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+        <span class="token string">"param1"</span><span class="token punctuation">:</span> <span class="token string">"value1"</span><span class="token punctuation">,</span>
+        <span class="token string">"param2"</span><span class="token punctuation">:</span> <span class="token string">"value2"</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<h4 id="get-attribute-of-tool-instance-1">11. Get Attribute of Tool Instance</h4>
+<pre class=" language-python"><code class="prism  language-python"><span class="token keyword">import</span> requests
+
+url <span class="token operator">=</span> <span class="token string">"http://localhost:8108/tools/get_tool_attribute/"</span>
+data <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"tool_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+    <span class="token string">"attribute"</span><span class="token punctuation">:</span> <span class="token string">"attribute_name"</span>
+<span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> requests<span class="token punctuation">.</span>post<span class="token punctuation">(</span>url<span class="token punctuation">,</span> json<span class="token operator">=</span>data<span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>json<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+</div>
+</body>
+
+</html>
