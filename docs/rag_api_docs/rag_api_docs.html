@@ -1,0 +1,383 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>rag_api_docs</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><h1 id="documentazione-api-dettagliata-e-professionale">Documentazione API Dettagliata e Professionale</h1>
+<p>Questa documentazione fornisce una guida completa all’API sviluppata utilizzando <strong>FastAPI</strong>, progettata per la gestione di contesti, file e configurazioni di catene (chains) in un sistema di elaborazione dati. L’API consente di creare, gestire ed eliminare contesti, caricare file associandoli a uno o più contesti, gestire i file caricati e configurare e caricare catene basate su specifici contesti e modelli di linguaggio (LLM).</p>
+<hr>
+<h2 id="indice">Indice</h2>
+<ul>
+<li><a href="#introduzione">Introduzione</a></li>
+<li><a href="#panoramica-generale">Panoramica Generale</a></li>
+<li><a href="#autenticazione-e-sicurezza">Autenticazione e Sicurezza</a></li>
+<li><a href="#gestione-degli-errori">Gestione degli Errori</a></li>
+<li><a href="#endpoint-dellapi">Endpoint dell’API</a>
+<ul>
+<li><a href="#1-gestione-dei-contesti">1. Gestione dei Contesti</a>
+<ul>
+<li><a href="#11-creazione-di-un-nuovo-contesto">1.1 Creazione di un Nuovo Contesto</a></li>
+<li><a href="#12-eliminazione-di-un-contesto">1.2 Eliminazione di un Contesto</a></li>
+<li><a href="#13-elenco-dei-contesti-disponibili">1.3 Elenco dei Contesti Disponibili</a></li>
+</ul>
+</li>
+<li><a href="#2-gestione-dei-file">2. Gestione dei File</a>
+<ul>
+<li><a href="#21-caricamento-di-un-file-su-contesti-multipli">2.1 Caricamento di un File su Contesti Multipli</a></li>
+<li><a href="#22-elenco-dei-file-nei-contesti">2.2 Elenco dei File nei Contesti</a></li>
+<li><a href="#23-eliminazione-di-un-file">2.3 Eliminazione di un File</a></li>
+</ul>
+</li>
+<li><a href="#3-configurazione-e-caricamento-delle-catene">3. Configurazione e Caricamento delle Catene</a>
+<ul>
+<li><a href="#31-configurazione-e-caricamento-di-una-catena">3.1 Configurazione e Caricamento di una Catena</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#modelli-e-strutture-dati">Modelli e Strutture Dati</a>
+<ul>
+<li><a href="#contextmetadata">ContextMetadata</a></li>
+<li><a href="#fileuploadresponse">FileUploadResponse</a></li>
+</ul>
+</li>
+<li><a href="#esempi-di-utilizzo">Esempi di Utilizzo</a>
+<ul>
+<li><a href="#caricamento-di-un-file-e-configurazione-di-una-catena">Caricamento di un File e Configurazione di una Catena</a></li>
+</ul>
+</li>
+<li><a href="#considerazioni-finali">Considerazioni Finali</a></li>
+<li><a href="#appendice">Appendice</a>
+<ul>
+<li><a href="#note-tecniche">Note Tecniche</a></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="introduzione">Introduzione</h2>
+<p>L’API descritta in questa documentazione è progettata per interagire con un sistema backend esistente, facilitando la gestione dinamica di dati e modelli in applicazioni che utilizzano modelli di linguaggio avanzati. Offre endpoint per operazioni di creazione, lettura, aggiornamento ed eliminazione (CRUD) su contesti e file, oltre a funzionalità avanzate per la configurazione e il caricamento di catene di elaborazione basate su modelli di linguaggio e archivi vettoriali (vector stores).</p>
+<hr>
+<h2 id="panoramica-generale">Panoramica Generale</h2>
+<p>L’API fornisce le seguenti funzionalità principali:</p>
+<ul>
+<li><strong>Gestione dei Contesti</strong>: Creare, elencare ed eliminare contesti (directory) nel sistema, permettendo di organizzare i dati e le risorse in modo strutturato.</li>
+<li><strong>Gestione dei File</strong>: Caricare file associandoli a uno o più contesti, elencare i file presenti in specifici contesti ed eliminare file sia per identificativo unico (UUID) che per percorso.</li>
+<li><strong>Configurazione e Caricamento delle Catene</strong>: Configurare e caricare in memoria catene di elaborazione (chains) che utilizzano modelli di linguaggio (LLM) e archivi vettoriali, basati su contesti specifici.</li>
+</ul>
+<p>L’API comunica con un backend esistente tramite richieste HTTP asincrone, utilizzando la libreria <code>httpx</code>.</p>
+<hr>
+<h2 id="autenticazione-e-sicurezza">Autenticazione e Sicurezza</h2>
+<p><strong>Nota:</strong> Attualmente, l’API non implementa meccanismi di autenticazione o autorizzazione. Per ambienti di produzione, è fortemente consigliato implementare misure di sicurezza appropriate, come l’utilizzo di token di accesso, API key o protocolli di autenticazione come OAuth 2.0, per proteggere gli endpoint dall’accesso non autorizzato.</p>
+<hr>
+<h2 id="gestione-degli-errori">Gestione degli Errori</h2>
+<p>L’API gestisce gli errori restituendo risposte HTTP con codici di stato appropriati e messaggi di dettaglio nel formato JSON. In caso di errore, la risposta conterrà una struttura simile alla seguente:</p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Messaggio di errore dettagliato."</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p>I codici di stato comuni includono:</p>
+<ul>
+<li><strong>200 OK</strong>: Richiesta elaborata con successo.</li>
+<li><strong>400 Bad Request</strong>: La richiesta contiene parametri non validi o mancanti.</li>
+<li><strong>404 Not Found</strong>: La risorsa richiesta non è stata trovata.</li>
+<li><strong>500 Internal Server Error</strong>: Errore interno del server durante l’elaborazione della richiesta.</li>
+</ul>
+<hr>
+<h2 id="endpoint-dellapi">Endpoint dell’API</h2>
+<h3 id="gestione-dei-contesti">1. Gestione dei Contesti</h3>
+<h4 id="creazione-di-un-nuovo-contesto">1.1 Creazione di un Nuovo Contesto</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>POST /contexts
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Crea un nuovo contesto (directory) nel sistema backend.</p>
+<p><strong>Parametri</strong></p>
+<ul>
+<li><strong>Form Data</strong>:
+<ul>
+<li><code>context_name</code> (string, obbligatorio): Nome del contesto da creare.</li>
+<li><code>description</code> (string, opzionale): Descrizione del contesto.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Esempio di Richiesta</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://your-api-url/contexts"</span> \
+     -F <span class="token string">"context_name=my_new_context"</span> \
+     -F <span class="token string">"description=Contesto per progetti speciali"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"my_new_context"</span><span class="token punctuation">,</span>
+  <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Contesto per progetti speciali"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h4 id="eliminazione-di-un-contesto">1.2 Eliminazione di un Contesto</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>DELETE /contexts/{context_name}
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Elimina un contesto esistente dal sistema backend, inclusi tutti i file e le risorse associate.</p>
+<p><strong>Parametri</strong></p>
+<ul>
+<li><strong>Path Parameter</strong>:
+<ul>
+<li><code>context_name</code> (string, obbligatorio): Nome del contesto da eliminare.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Esempio di Richiesta</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://your-api-url/contexts/my_context"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"Contesto 'my_context' eliminato con successo."</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h4 id="elenco-dei-contesti-disponibili">1.3 Elenco dei Contesti Disponibili</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>GET /contexts
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Recupera un elenco di tutti i contesti disponibili nel sistema backend.</p>
+<p><strong>Parametri</strong></p>
+<p>Nessuno.</p>
+<p><strong>Esempio di Richiesta</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://your-api-url/contexts"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"context1"</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Descrizione del contesto 1"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"context2"</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token keyword">null</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<hr>
+<h3 id="gestione-dei-file">2. Gestione dei File</h3>
+<h4 id="caricamento-di-un-file-su-contesti-multipli">2.1 Caricamento di un File su Contesti Multipli</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>POST /upload
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Carica un file e lo associa a uno o più contesti specificati. Il file verrà elaborato e indicizzato per essere utilizzato nelle catene di elaborazione.</p>
+<p><strong>Parametri</strong></p>
+<ul>
+<li><strong>Form Data</strong>:
+<ul>
+<li><code>file</code> (UploadFile, obbligatorio): Il file da caricare (ad esempio, PDF, DOCX).</li>
+<li><code>contexts</code> (string[], obbligatorio): Lista di contesti a cui associare il file. Può essere una stringa separata da virgole o un array.</li>
+<li><code>description</code> (string, opzionale): Descrizione del file.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Esempio di Richiesta</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://your-api-url/upload"</span> \
+     -F <span class="token string">"file=@/path/to/your/file.pdf"</span> \
+     -F <span class="token string">"contexts=context1,context2"</span> \
+     -F <span class="token string">"description=Documento importante"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"file_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+  <span class="token string">"contexts"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"context1"</span><span class="token punctuation">,</span> <span class="token string">"context2"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h4 id="elenco-dei-file-nei-contesti">2.2 Elenco dei File nei Contesti</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>GET /files
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Recupera un elenco di file presenti in specifici contesti. Se nessun contesto è specificato, restituisce tutti i file disponibili nel sistema.</p>
+<p><strong>Parametri</strong></p>
+<ul>
+<li><strong>Query Parameters</strong>:
+<ul>
+<li><code>contexts</code> (string[], opzionale): Lista di contesti per filtrare i file.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Esempio di Richiesta</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X GET <span class="token string">"http://your-api-url/files?contexts=context1&amp;contexts=context2"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">[</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"context1/file1.pdf"</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"file_uuid"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+      <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Documento importante"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token punctuation">{</span>
+    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"context2/file2.docx"</span><span class="token punctuation">,</span>
+    <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+      <span class="token string">"file_uuid"</span><span class="token punctuation">:</span> <span class="token string">"223e4567-e89b-12d3-a456-426614174001"</span><span class="token punctuation">,</span>
+      <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Relazione annuale"</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">]</span>
+</code></pre>
+<hr>
+<h4 id="eliminazione-di-un-file">2.3 Eliminazione di un File</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>DELETE /files
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Elimina un file dal sistema, identificandolo tramite il suo UUID (eliminazione da tutti i contesti) o tramite il suo percorso (eliminazione da un contesto specifico).</p>
+<p><strong>Parametri</strong></p>
+<ul>
+<li><strong>Query Parameters</strong> (almeno uno è obbligatorio):
+<ul>
+<li><code>file_id</code> (string, opzionale): UUID del file da eliminare.</li>
+<li><code>file_path</code> (string, opzionale): Percorso del file da eliminare, ad esempio “context1/file1.pdf”.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Esempio di Richiesta (per UUID)</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://your-api-url/files?file_id=123e4567-e89b-12d3-a456-426614174000"</span>
+</code></pre>
+<p><strong>Esempio di Richiesta (per percorso)</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X DELETE <span class="token string">"http://your-api-url/files?file_path=context1/file1.pdf"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"detail"</span><span class="token punctuation">:</span> <span class="token string">"File con ID 123e4567-e89b-12d3-a456-426614174000 eliminato da tutti i contesti."</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h3 id="configurazione-e-caricamento-delle-catene">3. Configurazione e Caricamento delle Catene</h3>
+<h4 id="configurazione-e-caricamento-di-una-catena">3.1 Configurazione e Caricamento di una Catena</h4>
+<p><strong>Endpoint</strong></p>
+<pre><code>POST /configure_and_load_chain/
+</code></pre>
+<p><strong>Descrizione</strong></p>
+<p>Configura e carica in memoria una catena (chain) di elaborazione basata su un contesto specifico e un modello di linguaggio (LLM). Questa catena può essere utilizzata per operazioni di domanda e risposta (Q&amp;A), ricerca semantica e altre applicazioni che coinvolgono modelli di linguaggio avanzati.</p>
+<p><strong>Parametri</strong></p>
+<ul>
+<li><strong>Query Parameters</strong>:
+<ul>
+<li><code>context</code> (string, opzionale, default: “default”): Il contesto su cui basare la configurazione della catena.</li>
+<li><code>model_name</code> (string, opzionale, default: “gpt-4o-mini”): Nome del modello LLM da utilizzare. Esempi: “gpt-4o”, “gpt-3.5-turbo”.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Esempio di Richiesta</strong></p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://your-api-url/configure_and_load_chain/?context=my_context&amp;model_name=gpt-4o-mini"</span>
+</code></pre>
+<p><strong>Esempio di Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"message"</span><span class="token punctuation">:</span> <span class="token string">"Chain configurata e caricata con successo."</span><span class="token punctuation">,</span>
+  <span class="token string">"llm_load_result"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token string">"success"</span><span class="token punctuation">,</span>
+    <span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"chat-openai_gpt-4o-mini"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"config_result"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"my_context_qa_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token string">"configured"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"load_result"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"my_context_qa_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token string">"loaded"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h2 id="modelli-e-strutture-dati">Modelli e Strutture Dati</h2>
+<h3 id="contextmetadata">ContextMetadata</h3>
+<p><strong>Descrizione</strong></p>
+<p>Rappresenta i metadati associati a un contesto.</p>
+<p><strong>Attributi</strong></p>
+<ul>
+<li><code>path</code> (string): Il percorso o nome del contesto.</li>
+<li><code>custom_metadata</code> (dict, opzionale): Metadati personalizzati associati al contesto.</li>
+</ul>
+<p><strong>Esempio</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token string">"my_context"</span><span class="token punctuation">,</span>
+  <span class="token string">"custom_metadata"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Contesto per progetti speciali"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h3 id="fileuploadresponse">FileUploadResponse</h3>
+<p><strong>Descrizione</strong></p>
+<p>Rappresenta la risposta dopo il caricamento di un file.</p>
+<p><strong>Attributi</strong></p>
+<ul>
+<li><code>file_id</code> (string): UUID univoco generato per il file.</li>
+<li><code>contexts</code> (list of string): Lista dei contesti ai quali il file è stato associato.</li>
+</ul>
+<p><strong>Esempio</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"file_id"</span><span class="token punctuation">:</span> <span class="token string">"123e4567-e89b-12d3-a456-426614174000"</span><span class="token punctuation">,</span>
+  <span class="token string">"contexts"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"context1"</span><span class="token punctuation">,</span> <span class="token string">"context2"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h2 id="esempi-di-utilizzo">Esempi di Utilizzo</h2>
+<h3 id="caricamento-di-un-file-e-configurazione-di-una-catena">Caricamento di un File e Configurazione di una Catena</h3>
+<p><strong>Passo 1: Caricare un File</strong></p>
+<p>Carichiamo un file PDF associandolo al contesto “project_alpha”.</p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://your-api-url/upload"</span> \
+     -F <span class="token string">"file=@/path/to/your/document.pdf"</span> \
+     -F <span class="token string">"contexts=project_alpha"</span> \
+     -F <span class="token string">"description=Documentazione del Progetto Alpha"</span>
+</code></pre>
+<p><strong>Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"file_id"</span><span class="token punctuation">:</span> <span class="token string">"a1b2c3d4-e5f6-7890-abcd-1234567890ab"</span><span class="token punctuation">,</span>
+  <span class="token string">"contexts"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"project_alpha"</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<p><strong>Passo 2: Configurare e Caricare la Catena</strong></p>
+<p>Configuriamo e carichiamo una catena utilizzando il contesto “project_alpha” e il modello LLM “gpt-4o-mini”.</p>
+<pre class=" language-bash"><code class="prism  language-bash">curl -X POST <span class="token string">"http://your-api-url/configure_and_load_chain/?context=project_alpha&amp;model_name=gpt-4o-mini"</span>
+</code></pre>
+<p><strong>Risposta</strong></p>
+<pre class=" language-json"><code class="prism  language-json"><span class="token punctuation">{</span>
+  <span class="token string">"message"</span><span class="token punctuation">:</span> <span class="token string">"Chain configurata e caricata con successo."</span><span class="token punctuation">,</span>
+  <span class="token string">"llm_load_result"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token string">"success"</span><span class="token punctuation">,</span>
+    <span class="token string">"model"</span><span class="token punctuation">:</span> <span class="token string">"chat-openai_gpt-4o-mini"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"config_result"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"project_alpha_qa_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token string">"configured"</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token string">"load_result"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+    <span class="token string">"chain_id"</span><span class="token punctuation">:</span> <span class="token string">"project_alpha_qa_chain"</span><span class="token punctuation">,</span>
+    <span class="token string">"status"</span><span class="token punctuation">:</span> <span class="token string">"loaded"</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+</code></pre>
+<hr>
+<h2 id="appendice">Appendice</h2>
+<h3 id="note-tecniche">Note Tecniche</h3>
+<ul>
+<li><strong>Comunicazione Asincrona</strong>: L’API utilizza <code>httpx.AsyncClient</code> per effettuare richieste asincrone al backend, migliorando l’efficienza e riducendo i tempi di attesa.</li>
+<li><strong>Middleware CORS</strong>: È stato configurato il middleware <code>CORSMiddleware</code> per permettere richieste cross-origin. In ambienti di produzione, si consiglia di restringere le origini consentite per motivi di sicurezza.</li>
+<li><strong>Gestione delle Eccezioni</strong>: L’API gestisce le eccezioni utilizzando <code>HTTPException</code> di FastAPI, restituendo messaggi di errore chiari e codici di stato appropriati.</li>
+<li><strong>Timeout Personalizzati</strong>: Alcune operazioni utilizzano impostazioni di timeout estese (ad esempio, <code>httpx.Timeout(600.0)</code>) per gestire richieste che possono richiedere più tempo, come il caricamento di modelli di grandi dimensioni.</li>
+</ul>
+</div>
+</body>
+
+</html>
