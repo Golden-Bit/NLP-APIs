@@ -102,7 +102,7 @@ async def configure_model(request: ModelConfigRequest):
 
 
 @router.post("/load_model/{config_id}")
-async def load_model(
+def load_model(
         config_id: str = Path(..., example="abcd1234-efgh-5678-ijkl-9012mnop3456", title="Config ID",
                               description="The configuration ID of the model to load.")
 ):

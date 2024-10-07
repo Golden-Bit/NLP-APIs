@@ -63,7 +63,8 @@ def get_vectorstore_component(store_id: str):
 
     print(store_id)
     load_vector_store(config_id=f"{store_id}_config")
-    vector_store = vector_stores.get(store_id)
+
+    vector_store = vector_stores[store_id]
 
     return vector_store
 
