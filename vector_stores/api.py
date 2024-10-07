@@ -253,7 +253,7 @@ async def list_vector_store_configs():
 
 
 @router.post("/vector_store/load/{config_id}", response_model=dict)
-async def load_vector_store(
+def load_vector_store(
     config_id: str = Path(..., description="The unique ID of the vector store configuration to load.", example="abcd1234-efgh-5678-ijkl-9012mnop3456")
 ):
     """

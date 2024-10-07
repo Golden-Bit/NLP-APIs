@@ -55,13 +55,11 @@ def get_vectorstore_component(store_id: str):
     # Function to get a vectorstore component by ID
 
     if not vector_stores.get(store_id):
-        #try:
-        load_vector_store(config_id=f"{store_id}_config")
-        #except Exception as e:
-        #    print(e)
-        print("###")
+        try:
+            load_vector_store(config_id=f"{store_id}_config")
+        except Exception as e:
+            print(e)
 
-    print(store_id)
     load_vector_store(config_id=f"{store_id}_config")
 
     vector_store = vector_stores[store_id]
