@@ -227,6 +227,10 @@ async def stream_chain(request: ExecuteChainRequest):
 
     try:
         body = request
+
+        if not chain_manager.chains.get(body.chain_id):
+            await load_chain(config_id=f"{body.chain_id}_config")
+
         chain = chain_manager.get_chain(body.chain_id)
         query = body.query
         inference_kwargs = body.inference_kwargs
