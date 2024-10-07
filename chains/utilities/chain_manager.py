@@ -15,10 +15,10 @@ from langchain.chains import RetrievalQA
 #  - [ ] to implement VectorStoreManager class
 from chains.chain_scripts import qa_chain
 #from chains.chain_scripts import tmp as qa_chain
-from llms.api import model_manager
+from llms.api import model_manager, load_model
 from prompts.api import prompt_manager
 from tools.api import tool_manager
-from vector_stores.api import vector_stores
+from vector_stores.api import vector_stores, load_vector_store
 
 
 # Functions for getting components by ID
@@ -40,6 +40,12 @@ def get_prompt_component(config_id: str):
 def get_llm_component(model_id: str):
     # Function to get an LLM component by ID
 
+    if not model_manager.get_model(model_id):
+        try:
+            load_model(config_id=f"{model_id}_config")
+        except Exception as e:
+            print(e)
+
     llm_model = model_manager.get_model(model_id)
 
     return llm_model
@@ -48,7 +54,13 @@ def get_llm_component(model_id: str):
 def get_vectorstore_component(store_id: str):
     # Function to get a vectorstore component by ID
 
-    vector_store = vector_stores[store_id]
+    if not vector_stores.get(store_id):
+        try:
+            load_vector_store(config_id=f"{store_id}_config")
+        except Exception as e:
+            print(e)
+
+    vector_store = vector_stores.get(store_id)
 
     return vector_store
 

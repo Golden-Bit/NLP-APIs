@@ -1,7 +1,12 @@
+
+########################################################################################################################
+# TODO:
+#  - add condition to enable/disable di code snippet depending on current os (windows/linux)
 import pysqlite3
 import sys
 
 sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+########################################################################################################################
 
 import json
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
