@@ -1,12 +1,5 @@
 
 ########################################################################################################################
-# TODO:
-#  - add condition to enable/disable di code snippet depending on current os (windows/linux)
-import pysqlite3
-import sys
-
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-########################################################################################################################
 
 import json
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
@@ -16,15 +9,6 @@ from typing import Dict, Any, List, Optional
 from pymongo import MongoClient
 from chains.utilities.chain_manager import ChainManager
 from fastapi.responses import StreamingResponse
-from data_stores.api import router as router_1
-from document_loaders.api import router as router_2
-from document_stores.api import router as router_3
-from document_transformers.api import router as router_4
-from embedding_models.api import router as router_5
-from vector_stores.api import router as router_6
-from llms.api import router as router_7
-from prompts.api import router as router_8
-from tools.api import router as router_9
 
 
 router = APIRouter()
@@ -239,29 +223,12 @@ async def stream_chain(request: ExecuteChainRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 
+if __name__ == "__main__":
+    import uvicorn
 
-# import uvicorn
+    app = FastAPI()
 
-app = FastAPI()
+    app.include_router(router, prefix="/chains", tags=["chains"])
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Permetti tutte le origini
-    allow_credentials=True,
-    allow_methods=["*"],  # Permetti tutti i metodi (GET, POST, OPTIONS, ecc.)
-    allow_headers=["*"],  # Permetti tutti gli headers
-)
+    uvicorn.run(app, host="127.0.0.1", port=8100)
 
-app.include_router(router_1, prefix="/data_stores", tags=["data_stores"])
-app.include_router(router_2, prefix="/document_loaders", tags=["document_loaders"])
-app.include_router(router_3, prefix="/document_stores", tags=["document_stores"])
-app.include_router(router_4, prefix="/document_transformers", tags=["document_transformers"])
-app.include_router(router_5, prefix="/embedding_models", tags=["embedding_models"])
-app.include_router(router_6, prefix="/vector_stores", tags=["vector_stores"])
-app.include_router(router_7, prefix="/llms", tags=["llms"])
-app.include_router(router_8, prefix="/prompts", tags=["prompts"])
-app.include_router(router_9, prefix="/tools", tags=["tools"])
-
-app.include_router(router, prefix="/chains", tags=["chains"])
-
-#uvicorn.run(app, host="0.0.0.0", port=8100)
