@@ -73,7 +73,7 @@ async def upload_file_to_contexts_(file: UploadFile, contexts: List[str],
                 "subdir": context,  # Here, context is passed as a single string, not a concatenation
                 "extra_metadata": json.dumps({"file_uuid": file_uuid, **(file_metadata or {})}),
             }
-            files = {"file": (file.filename, file_content, file.content_type)}
+            files = {"file": (file.filename.replace(" ", "-"), file_content, file.content_type)}
 
             # Make the POST request to upload the file to the current context
             response = await client.post(f"{BASE_URL}/data_stores/upload", data=data, files=files)
@@ -237,7 +237,7 @@ async def upload_file_to_contexts(file: UploadFile,
             # Use the document collection name associated with the context
             add_docs_response = await client.post(
                 f"{BASE_URL}/vector_stores/vector_store/add_documents_from_store/{vector_store_id}",
-                params={"document_collection": doc_store_collection_name})
+                params={"document_collection": doc_store_collection_name}, timeout=timeout_settings)
             if add_docs_response.status_code != 200:
                 print(add_docs_response)
                 raise HTTPException(status_code=add_docs_response.status_code, detail=add_docs_response.json())
@@ -260,6 +260,7 @@ async def create_context(context_name: str = Form(...), description: Optional[st
 @app.delete("/contexts/{context_name}", response_model=Dict[str, Any])
 async def delete_context(context_name: str):
     result = await delete_context_on_server(context_name)
+    # TODO: delete related vector store (and all related collection in document store)
     return result
 
 # List all available contexts
