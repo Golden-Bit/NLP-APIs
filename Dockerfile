@@ -7,7 +7,7 @@ LABEL maintainer="tuo_nome@example.com"
 # Imposta non-interattivo per evitare richieste di configurazione manuale
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Aggiorna i pacchetti e installa Python 3.10, pip, MongoDB e tzdata
+# Aggiorna i pacchetti e installa Python 3.10, pip e tzdata
 RUN apt-get update && apt-get install -y \
     python3.10 \
     python3.10-venv \
@@ -24,18 +24,6 @@ RUN apt-get update && apt-get install -y \
 RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata
 
-# Aggiungi la chiave pubblica di MongoDB
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | apt-key add -
-
-# Aggiungi il repository di MongoDB per Ubuntu 22.04 (Jammy)
-RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-
-# Aggiorna i pacchetti e installa MongoDB
-RUN apt-get update && apt-get install -y mongodb-org
-
-# Crea la directory per i dati di MongoDB
-RUN mkdir -p /data/db /var/log/mongodb && chown -R mongodb:mongodb /data/db
-
 # Copia il contenuto del repository nella directory /build_app
 WORKDIR /build_app
 COPY . /build_app
@@ -48,7 +36,7 @@ RUN pip install -r requirements.txt
 ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 
 # Espone la porta per FastAPI
-EXPOSE 8100
+EXPOSE 8777
 
-# Comando per avviare MongoDB in background e lanciare FastAPI con uvicorn
-CMD mongod --fork --logpath /var/log/mongodb/mongod.log --dbpath /data/db && uvicorn app.main:app --host 0.0.0.0 --port 8100 --workers 1
+# Comando per avviare FastAPI con uvicorn
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8777", "--workers", "1"]
