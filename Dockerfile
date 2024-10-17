@@ -48,4 +48,4 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 EXPOSE 8777
 
 # Comando per avviare MongoDB in background e lanciare FastAPI con uvicorn
-CMD mongod --fork --logpath /var/log/mongod.log && uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 1
+CMD mongod --fork --logpath /var/log/mongod.log && uvicorn app.main:app --host 0.0.0.0 --port 8777 --workers 1
