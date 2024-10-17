@@ -7,7 +7,7 @@ LABEL maintainer="tuo_nome@example.com"
 # Imposta non-interattivo per evitare richieste di configurazione manuale
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Aggiorna i pacchetti e installa Python 3.10, pip, e MongoDB
+# Aggiorna i pacchetti e installa Python 3.10, pip, MongoDB e tzdata
 RUN apt-get update && apt-get install -y \
     python3.10 \
     python3.10-venv \
@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
     lsb-release \
-    ca-certificates
+    ca-certificates \
+    tzdata  # <--- Aggiungi tzdata qui
 
 # Imposta il fuso orario
 RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime && \
@@ -33,8 +34,8 @@ RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mon
 RUN apt-get update && apt-get install -y mongodb-org
 
 # Copia il contenuto del repository nella directory /app
-WORKDIR /build_api
-COPY . /build_api
+WORKDIR /build_app
+COPY . /build_app
 
 # Installa le dipendenze dal requirements.txt
 RUN pip install --upgrade pip
