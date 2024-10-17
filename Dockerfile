@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     lsb-release \
     ca-certificates \
-    tzdata  # <--- Aggiungi tzdata qui
+    tzdata
 
 # Imposta il fuso orario
 RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime && \
@@ -33,7 +33,10 @@ RUN echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu jammy/mon
 # Aggiorna i pacchetti e installa MongoDB
 RUN apt-get update && apt-get install -y mongodb-org
 
-# Copia il contenuto del repository nella directory /app
+# Crea la directory per i dati di MongoDB
+RUN mkdir -p /data/db /var/log/mongodb && chown -R mongodb:mongodb /data/db
+
+# Copia il contenuto del repository nella directory /build_app
 WORKDIR /build_app
 COPY . /build_app
 
@@ -48,4 +51,4 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 EXPOSE 8777
 
 # Comando per avviare MongoDB in background e lanciare FastAPI con uvicorn
-CMD mongod --fork --logpath /var/log/mongod.log && uvicorn app.main:app --host 0.0.0.0 --port 8777 --workers 1
+CMD mongod --fork --logpath /var/log/mongodb/mongod.log --dbpath /data/db && uvicorn app.main:app --host 0.0.0.0 --port 8777 --workers 1
