@@ -6,8 +6,9 @@ import platform
 # Controlla il sistema operativo
 if platform.system() == 'Linux':
     import pysqlite3
-    # Sostituisce il modulo sqlite3 con pysqlite3 solo su Linux
-    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+    import sqlite3
+
+    sqlite3.connect = pysqlite3.connect
 else:
     pass
 ########################################################################################################################
