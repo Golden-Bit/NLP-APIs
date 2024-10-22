@@ -6,7 +6,8 @@ from langchain_openai import OpenAI, ChatOpenAI
 from typing import Dict
 
 # MongoDB connection setup
-client = MongoClient(os.getenv('mongodb://localhost:27017/'))
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client['model_config_db']
 collection = db['model_configs']
 

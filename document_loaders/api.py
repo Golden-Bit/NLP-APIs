@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException, Form, Query, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
@@ -16,8 +18,8 @@ router = APIRouter()
 
 ########################################################################################################################
 # MongoDB connection configuration
-mongo_connection_string = "mongodb://localhost:27017/"
-mongo_client = MongoClient(mongo_connection_string)
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 loaders_db_name = "loader_configs"
 document_store_db_name = "document_store"
 ########################################################################################################################

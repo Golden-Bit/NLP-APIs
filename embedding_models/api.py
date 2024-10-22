@@ -1,3 +1,5 @@
+import os
+
 from pydantic import BaseModel, Field
 from typing import Dict, Any, Optional, List
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
@@ -9,7 +11,8 @@ from langchain_openai import OpenAIEmbeddings
 
 router = APIRouter()
 
-client = MongoClient('mongodb://localhost:27017/')
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client['embedding_model_db']
 collection = db['embedding_model_configs']
 embedding_manager = EmbeddingModelManager(collection)

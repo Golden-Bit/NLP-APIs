@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException, Query, Path, Body, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
@@ -8,8 +10,8 @@ import uuid
 router = APIRouter()
 
 # MongoDB connection configuration
-connection_string = "mongodb://localhost:27017/"
-client = MongoClient(connection_string)
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db_name = "document_store"
 metadata_collection_name = "collections_metadata"
 

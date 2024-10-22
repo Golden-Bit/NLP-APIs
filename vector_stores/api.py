@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException, Path, Body, Query, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional, Tuple
@@ -10,8 +12,8 @@ from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddin
 router = APIRouter()
 
 # MongoDB connection configuration
-connection_string = "mongodb://localhost:27017/"
-client = MongoClient(connection_string)
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db_name = "vector_store"
 collection_name = "vector_store_configs"
 vector_store_collection = client[db_name][collection_name]

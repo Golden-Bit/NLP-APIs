@@ -8,7 +8,8 @@ from prompts.utilities.prompt_manager import PromptManager, PromptConfig, ChatPr
 router = APIRouter()
 
 # Configurazione della connessione a MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client['prompt_db']
 collection = db['prompt_configs']
 

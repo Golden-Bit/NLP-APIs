@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from pymongo import MongoClient
 import json
@@ -20,7 +21,8 @@ def get_chain(llm: Any, retriever: Any):
                        ]  # Sostituisci con le collection reali
 
     # Connessione al database MongoDB locale
-    client = MongoClient('mongodb://localhost:27017/')
+    MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+    client = MongoClient(MONGO_CONNECTION_STRING)
     db = client[DATABASE_NAME]
 
     # Inizializziamo un dizionario per contenere i dati

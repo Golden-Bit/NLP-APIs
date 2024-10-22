@@ -5,7 +5,8 @@ from pydantic import BaseModel, Field
 from typing import Dict, Any, List
 
 # Configurazione della connessione a MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client['prompt_db']
 collection = db['prompt_configs']
 

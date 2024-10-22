@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
 from pydantic import BaseModel, Field
@@ -9,7 +10,8 @@ from tools.utilities.tool_manager import ToolManager, ToolConfig
 router = APIRouter()
 
 # Configurazione della connessione a MongoDB
-client = MongoClient('mongodb://localhost:27017/')
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client['tool_db']
 collection = db['tool_configs']
 tool_manager = ToolManager(collection)

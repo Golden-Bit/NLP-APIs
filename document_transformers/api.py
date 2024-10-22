@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, HTTPException, Path, Body, Query, APIRouter
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional, Union
@@ -13,8 +15,8 @@ from document_transformers.utilities.document_transformer_map import DocumentTra
 router = APIRouter()
 
 # MongoDB connection configuration
-mongo_connection_string = "mongodb://localhost:27017/"
-mongo_client = MongoClient(mongo_connection_string)
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+mongo_client = MongoClient(MONGO_CONNECTION_STRING)
 mongo_db_name = "transformers"
 transformer_collection_name = "transformer_configs"
 transformer_map_collection_name = "transformer_map_configs"

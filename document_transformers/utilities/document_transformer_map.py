@@ -1,3 +1,4 @@
+import os
 from typing import Any, Dict, List, Sequence, Type, Union, Optional
 from pydantic import BaseModel
 from langchain_core.documents import Document
@@ -12,8 +13,8 @@ from pymongo import MongoClient
 import uuid
 
 # MongoDB connection configuration
-connection_string = "mongodb://localhost:27017/"
-client = MongoClient(connection_string)
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 document_store_db_name = "document_store"
 
 

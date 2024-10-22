@@ -2,6 +2,8 @@
 ########################################################################################################################
 
 import json
+import os
+
 from fastapi import FastAPI, HTTPException, Path, Body, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -12,8 +14,8 @@ from fastapi.responses import StreamingResponse
 
 
 router = APIRouter()
-
-client = MongoClient('mongodb://localhost:27017/')
+MONGO_CONNECTION_STRING = os.getenv('MONGO_CONNECTION_STRING', 'localhost')
+client = MongoClient(MONGO_CONNECTION_STRING)
 db = client['chain_db']
 collection = db['chain_configs']
 chain_manager = ChainManager(collection)
