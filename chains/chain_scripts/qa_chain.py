@@ -1,4 +1,4 @@
-from langchain_experimental.chat_models.llm_wrapper import ChatWrapper
+# from langchain_experimental.chat_models.llm_wrapper import ChatWrapper
 
 import json
 from typing import Any
@@ -6,28 +6,23 @@ from typing import Any
 from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
-from langchain_chroma import Chroma
-from langchain_core.documents import Document
-from langchain_openai import OpenAIEmbeddings
-#from global_parameters import *
 
 
-'''class Qwen2Chat(ChatWrapper):
-    """Wrapper for Qwen2-1.5B-Instruct model."""
-
-    @property
-    def _llm_type(self) -> str:
-        return "qwen2-style"
-
-    sys_beg: str = "[INST] <<SYS>>\n"
-    sys_end: str = "\n<</SYS>>"
-    ai_n_beg: str = "[ASSISTANT] "
-    ai_n_end: str = " </s>"
-    usr_n_beg: str = "[USER] "
-    usr_n_end: str = " [/USER]"
-    usr_0_beg: str = "[USER] "
-    usr_0_end: str = " [/USER]"'''
+#   class Qwen2Chat(ChatWrapper):
+#    """Wrapper for Qwen2-1.5B-Instruct model."""
+#
+#    @property
+#    def _llm_type(self) -> str:
+#        return "qwen2-style"
+#
+#    sys_beg: str = "[INST] <<SYS>>\n"
+#    sys_end: str = "\n<</SYS>>"
+#    ai_n_beg: str = "[ASSISTANT] "
+#    ai_n_end: str = " </s>"
+#    usr_n_beg: str = "[USER] "
+#    usr_n_end: str = " [/USER]"
+#    usr_0_beg: str = "[USER] "
+#    usr_0_end: str = " [/USER]"
 
 
 # First we need a prompt that we can pass into an LLM to generate this search query
