@@ -53,7 +53,7 @@ def get_chain(llm: Any = None,
 # Esempio di esecuzione dell'agente
 if __name__ == "__main__":
     # Configura il modello di chat OpenAI
-    llm = ChatOpenAI(model="gpt-4",
+    llm = ChatOpenAI(model="gpt-4o",
                      temperature=0,
                      api_key="your_api_key")
 
