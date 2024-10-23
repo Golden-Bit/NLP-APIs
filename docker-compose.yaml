@@ -15,7 +15,7 @@ services:
     container_name: fastapi_app
     restart: always
     ports:
-      - "8777:8777"
+      - "8100:8100"
     depends_on:
       - mongodb
     environment:

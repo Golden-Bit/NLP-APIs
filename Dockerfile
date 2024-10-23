@@ -45,7 +45,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 
 # Espone la porta per FastAPI
-EXPOSE 8777
+EXPOSE 8100
 
 # Comando per avviare FastAPI con dockerize per attendere MongoDB
-CMD ["dockerize", "-wait", "tcp://mongodb:27017", "-timeout", "30s", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8777", "--workers", "1"]
+CMD ["dockerize", "-wait", "tcp://mongodb:27017", "-timeout", "30s", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8100", "--workers", "1"]
