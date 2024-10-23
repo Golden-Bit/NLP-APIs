@@ -13,7 +13,9 @@ from langchain.chains import RetrievalQA
 
 # TODO:
 #  - [ ] to implement VectorStoreManager class
-from chains.chain_scripts import qa_chain
+from chains.chain_scripts import qa_chain, agent_with_tools
+from chains.chain_scripts import mongodb_chain
+from chains.chain_scripts import dataloader_chain
 #from chains.chain_scripts import tmp as qa_chain
 from llms.api import model_manager, load_model
 from prompts.api import prompt_manager
@@ -68,7 +70,10 @@ def get_vectorstore_component(store_id: str):
 class ChainManager:
 
     available_chains: Dict[str, Any] = {
-        "qa_chain": qa_chain
+        "qa_chain": qa_chain,
+        "mongodb_chain": mongodb_chain,
+        "dataloader_chain": dataloader_chain,
+        "agent_with_tools": agent_with_tools
     }
 
     def __init__(self, db_collection):
@@ -107,15 +112,22 @@ class ChainManager:
         if chain_id in self.chains:
             raise ValueError("Chain already loaded")
 
-        #prompt = get_prompt_component(config["prompt_id"])
-        llm = get_llm_component(config["llm_id"])
-        vectorstore = get_vectorstore_component(config["vectorstore_id"])
-        retriever = vectorstore.as_retriever(**{"search_type": "similarity", "search_kwargs": {"k": 10}})
+        if chain_type == "qa_chain":
+            #prompt = get_prompt_component(config["prompt_id"])
+            llm = get_llm_component(config["llm_id"])
+            vectorstore = get_vectorstore_component(config["vectorstore_id"])
+            retriever = vectorstore.as_retriever(**{"search_type": "similarity", "search_kwargs": {"k": 10}})
 
-        chain = self.available_chains[chain_type].get_chain(llm=llm,
-                                                            retriever=retriever)
+            chain = self.available_chains[chain_type].get_chain(llm=llm,
+                                                                retriever=retriever)
 
-        self.chains[chain_id] = chain
+            self.chains[chain_id] = chain
+
+        elif chain_type == "agent_with_tools":
+            llm = get_llm_component(config["llm_id"])
+            chain = self.available_chains[chain_type].get_chain(llm=llm)
+            self.chains[chain_id] = chain
+
         return {"message": "Chain loaded successfully", "chain_id": chain_id}
 
     def unload_chain(self, chain_id: str):
