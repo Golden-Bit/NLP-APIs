@@ -1,6 +1,9 @@
 import os
+import json
 
-os.environ['MONGO_CONNECTION_STRING'] = 'mongodb://mongodb:27017/'
+config_file = open("config.json", "rb")
+config_dict = json.load(config_file)
+os.environ['MONGO_CONNECTION_STRING'] = config_dict["mongodb_connection_string"]
 
 ########################################################################################################################
 import sys
