@@ -24,6 +24,11 @@ RUN apt-get update && apt-get install -y \
 RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata
 
+# Installa dockerize
+RUN apt-get update && apt-get install -y wget && \
+    wget -O /usr/local/bin/dockerize https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64 && \
+    chmod +x /usr/local/bin/dockerize
+
 # Copia il contenuto del repository nella directory /build_app
 WORKDIR /build_app
 COPY . /build_app
@@ -39,4 +44,4 @@ ENV LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
 EXPOSE 8777
 
 # Comando per avviare FastAPI con uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8777", "--workers", "1"]
+CMD ["dockerize", "-wait", "tcp://mongodb:27017", "-timeout", "30s", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8777", "--workers", "1"]
