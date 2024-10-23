@@ -1,4 +1,3 @@
-
 from google.cloud import storage
 from typing import List, Optional, Dict, Any
 import json
@@ -100,7 +99,6 @@ class GCSFileStorage:
 
     def save_directory_metadata(self, directory: str, custom_metadata: Dict[str, Any]) -> None:
         """Save metadata for a directory."""
-        # Simulated directories via naming convention
         metadata_store = self._load_metadata_store()
         metadata_store[directory] = custom_metadata
         self._save_metadata_store(metadata_store)
