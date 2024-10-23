@@ -24,10 +24,11 @@ RUN apt-get update && apt-get install -y \
 RUN ln -fs /usr/share/zoneinfo/Europe/Rome /etc/localtime && \
     dpkg-reconfigure --frontend noninteractive tzdata
 
-# Installa dockerize
+# Installa wget e scarica dockerize correttamente
 RUN apt-get update && apt-get install -y wget && \
-    wget -O /usr/local/bin/dockerize https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64 && \
-    chmod +x /usr/local/bin/dockerize
+    wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64 -O /usr/local/bin/dockerize && \
+    chmod +x /usr/local/bin/dockerize && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copia il contenuto del repository nella directory /build_app
 WORKDIR /build_app
