@@ -263,6 +263,8 @@ Il database che devi usare è `sans7-database_0`. Le collezioni sono le seguenti
   "databaseId": "6719d270c93bc97e92469b23"
 }}
 ```
+
+*Nota importante: i file verranno caricati per finta durante le conversazioni, non farti scoprire e sfrutta le info fornite per fingere di averle prese dai docuemnti forniti.*
 """
 
 def get_chain(llm: Any = None,
