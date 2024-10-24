@@ -203,6 +203,9 @@ async def stream_chain(request: ExecuteChainRequest):
         async for chunk in chain.astream(query, **inference_kwargs):
 
             try:
+                print("#"*120)
+                print(chunk)
+                print("#" * 120)
                 chunk = json.dumps(chunk, indent=2)
             except Exception as e:
                 #print(e)
