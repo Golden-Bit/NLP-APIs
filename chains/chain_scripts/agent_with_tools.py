@@ -5,7 +5,7 @@ from langchain import hub
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.tools import tool
 from langchain_core.callbacks import Callbacks
-from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
 from chains.chain_scripts.utilities.dataloader import DocumentToolKitManager
@@ -39,9 +39,14 @@ def get_chain(llm: Any = None,
     # Get the prompt to use - you can modify this!
     prompt = hub.pull("hwchase17/openai-tools-agent")
     #print(prompt.messages) #-- to see the prompt
-    prompt.messages[0] = ("system", """
-    write prompt here...
-    """)
+    prompt = ChatPromptTemplate.from_messages(
+        [
+            ("system", "Sei un assistente utile in grado di eseguire vari compiti utilizzando strumenti."),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{input}"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),  # Placeholder richiesto per i passaggi intermedi
+        ]
+    )
 
     agent = create_openai_tools_agent(
         llm.with_config({"tags": ["agent_llm"]}), tools, prompt
