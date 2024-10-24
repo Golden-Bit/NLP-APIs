@@ -43,14 +43,14 @@ def get_chain(llm: Any = None,
     agent = create_openai_tools_agent(
         llm.with_config({"tags": ["agent_llm"]}), tools, prompt
     )
-    agent_executor = AgentExecutor(agent=agent, tools=tools).with_config(
+    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True).with_config(
         {"run_name": "Agent"}
     )
     return agent_executor
 # Note: We use `pprint` to print only to depth 1, it makes it easier to see the output from a high level, before digging in.
-import pprint
+#import pprint
 
-chunks = []
+#chunks = []
 
 """
 async def main():

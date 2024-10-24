@@ -233,8 +233,9 @@ async def stream_events_chain(request: ExecuteChainRequest):
     async def generate_response(chain: Any, query: Dict[str, Any], inference_kwargs: Dict[str, Any], stream_only_content: bool = False):
 
         async for event in chain.astream_events(
-            {"input": "create a cusotmer info tables about www.goldsolarweb.com"},
+            query,
             version="v1",
+            **inference_kwargs,
     ):
             kind = event["event"]
             if kind == "on_chain_start":
