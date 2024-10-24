@@ -227,6 +227,63 @@ async def stream_chain(request: ExecuteChainRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.post("/stream_events_chain")
+async def stream_events_chain(request: ExecuteChainRequest):
+
+    async def generate_response(chain: Any, query: Dict[str, Any], inference_kwargs: Dict[str, Any], stream_only_content: bool = False):
+
+        async for event in chain.astream_events(
+            {"input": "create a cusotmer info tables about www.goldsolarweb.com"},
+            version="v1",
+    ):
+            kind = event["event"]
+            if kind == "on_chain_start":
+                if (
+                        event["name"] == "Agent"
+                ):  # Was assigned when creating the agent with `.with_config({"run_name": "Agent"})`
+                    print(
+                        f"Starting agent: {event['name']} with input: {event['data'].get('input')}"
+                    )
+            elif kind == "on_chain_end":
+                if (
+                        event["name"] == "Agent"
+                ):  # Was assigned when creating the agent with `.with_config({"run_name": "Agent"})`
+                    print()
+                    print("--")
+                    print(
+                        f"Done agent: {event['name']} with output: {event['data'].get('output')['output']}"
+                    )
+            if kind == "on_chat_model_stream":
+                content = event["data"]["chunk"].content
+                if content:
+                    # Empty content in the context of OpenAI means
+                    # that the model is asking for a tool to be invoked.
+                    # So we only print non-empty content
+                    print(content, end="|")
+                    yield content
+            elif kind == "on_tool_start":
+                print("--")
+                print(
+                    f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
+                )
+            elif kind == "on_tool_end":
+                print(f"Done tool: {event['name']}")
+                print(f"Tool output was: {event['data'].get('output')}")
+                print("--")
+
+    try:
+        body = request
+
+        if not chain_manager.chains.get(body.chain_id):
+            await load_chain(config_id=f"{body.chain_id}_config")
+
+        chain = chain_manager.get_chain(body.chain_id)
+        query = body.query
+        inference_kwargs = body.inference_kwargs
+        return StreamingResponse(generate_response(chain, query, inference_kwargs), media_type="application/json")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 if __name__ == "__main__":
     import uvicorn

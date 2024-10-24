@@ -1,15 +1,21 @@
+import asyncio
 from typing import Any
-from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
+
+from langchain import hub
 from langchain.agents import AgentExecutor, create_openai_tools_agent
-from langchain.chat_models import ChatOpenAI
-from chains.chain_scripts.utilities.dataloader import DocumentToolKitManager  # Assicurati che questo percorso sia corretto
+from langchain.tools import tool
+from langchain_core.callbacks import Callbacks
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+
+from chains.chain_scripts.utilities.dataloader import DocumentToolKitManager
 from chains.chain_scripts.utilities.mongodb import MongoDBToolKitManager
 
+model = ChatOpenAI(temperature=0, streaming=True, api_key="")
 
-# Funzione per ottenere una catena modificata senza memoria o cronologia chat
-# TODO:
-#  - aggiungere eventuali documenti forniti in input (salvare temporaneamente per il processamento)
-#  - aggiungere immagini fornite dall'utente (immagini vanno gestite come messaggi speciali)
+import random
+
+
 def get_chain(llm: Any = None,
               connection_string: str = "mongodb://localhost:27017",
               default_database: str = None,
@@ -30,46 +36,64 @@ def get_chain(llm: Any = None,
 
     tools = mongo_tools + doc_tools
 
+    # Get the prompt to use - you can modify this!
+    prompt = hub.pull("hwchase17/openai-tools-agent")
+    # print(prompt.messages) -- to see the prompt
 
-    # Definisci il prompt con un placeholder per agent_scratchpad (richiesto dagli strumenti)
-    prompt = ChatPromptTemplate.from_messages(
-        [
-            ("system", "Sei un assistente utile in grado di eseguire vari compiti utilizzando strumenti."),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),  # Placeholder richiesto per i passaggi intermedi
-        ]
+    agent = create_openai_tools_agent(
+        llm.with_config({"tags": ["agent_llm"]}), tools, prompt
     )
-
-    # Crea l'agente con il prompt e gli strumenti strutturati (strumenti per documenti in questo caso)
-    agent = create_openai_tools_agent(llm, tools, prompt)
-
-    # Crea l'esecutore dell'agente senza memoria o cronologia chat
-    agent_executor = AgentExecutor(agent=agent, tools=tools)#, verbose=True)
-
+    agent_executor = AgentExecutor(agent=agent, tools=tools).with_config(
+        {"run_name": "Agent"}
+    )
     return agent_executor
+# Note: We use `pprint` to print only to depth 1, it makes it easier to see the output from a high level, before digging in.
+import pprint
 
+chunks = []
 
-# Esempio di esecuzione dell'agente
-if __name__ == "__main__":
-    # Configura il modello di chat OpenAI
-    llm = ChatOpenAI(model="gpt-4o",
-                     temperature=0,
-                     api_key="your_api_key")
+async def main():
 
-    # Ottieni la catena (senza cronologia chat)
-    chain = get_chain(llm=llm)
+    chain = get_chain(llm=model)
 
-    # Query di esempio per l'elaborazione dei documenti
-    response = chain.invoke(
-        {
-            #"input": "Crea un nuovo documento di testo locale in 'test.pdf' con il contenuto 'Ciao, mondo!'. Poi leggi il documento per confermare il contenuto. Successivamente, modifica il documento per avere il contenuto 'Ciao, OpenAI!'. Leggi nuovamente il documento per confermare le modifiche. Infine, elimina il documento.",
-            #"input": "Prima di tutto leggi contenuto del documento pdf 'bilancio provvisorio.pdf' usando funzione di read_local_document, ",
-            "input": "estrai informazioni e fai relazione riguardo https://www.goldsolarweb.com",
-            "chat_history": []
-        }
-    )
+    async for event in chain.astream_events(
+            {"input": "create a cusotmer info tables about www.goldsolarweb.com"},
+            version="v1",
+    ):
+        kind = event["event"]
+        if kind == "on_chain_start":
+            if (
+                    event["name"] == "Agent"
+            ):  # Was assigned when creating the agent with `.with_config({"run_name": "Agent"})`
+                print(
+                    f"Starting agent: {event['name']} with input: {event['data'].get('input')}"
+                )
+        elif kind == "on_chain_end":
+            if (
+                    event["name"] == "Agent"
+            ):  # Was assigned when creating the agent with `.with_config({"run_name": "Agent"})`
+                print()
+                print("--")
+                print(
+                    f"Done agent: {event['name']} with output: {event['data'].get('output')['output']}"
+                )
+        if kind == "on_chat_model_stream":
+            content = event["data"]["chunk"].content
+            if content:
+                # Empty content in the context of OpenAI means
+                # that the model is asking for a tool to be invoked.
+                # So we only print non-empty content
+                print(content, end="|")
+                yield content
+        elif kind == "on_tool_start":
+            print("--")
+            print(
+                f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
+            )
+        elif kind == "on_tool_end":
+            print(f"Done tool: {event['name']}")
+            print(f"Tool output was: {event['data'].get('output')}")
+            print("--")
 
-    # Stampa la risposta dall'agente
-    print(response)
-    print("#"*120 + "\n\n")
+asyncio.run(main())
+
