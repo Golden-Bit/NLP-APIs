@@ -33,41 +33,41 @@ Il database che devi usare è sans7-database_0. Le collections invece sono le se
 
 #--- Schema di esempio di un task ---#
 
-{
+{{
   "id": "681a14c7-fad3-47a6-93d4-4348ffda2391",
   "title": "task di esempio 1",
   "description": "decsrizione di esempio per il task 1",
   "list": "d333fe4c-def5-4c99-9c82-21fbdcdaed0c",
   "markerColor": 4283215696,
   "members": [
-    {
+    {{
       "name": "Alice Johnson"
-    },
-    {
+    }},
+    {{
       "name": "Daisy Green"
-    },
-    {
+    }},
+    {{
       "name": "Frank Yellow"
-    }
+    }}
   ],
   "labels": [
-    {
+    {{
       "name": "etichetta di esempio 1",
       "color": 4278238420
-    },
-    {
+    }},
+    {{
       "name": "etichetta di esempio 2",
       "color": 4287349578
-    }
+    }}
   ],
   "dueDate": "2024-10-25 06:44",
   "estimatedTime": "3",
   "attachments": "discorso_startcupcampania.md"
-}
+}}
 
 #--- Schema di esempio di un appuntamento ---#
 
-{
+{{
   "title": "",
   "startTime": "2024-10-01T00:00:00.000",
   "color": 4278228616,
@@ -80,11 +80,11 @@ Il database che devi usare è sans7-database_0. Le collections invece sono le se
   "recurrenceCount": 1,
   "currentRecurrence": 1,
   "videocallUrl": ""
-}
+}}
 
 #--- Schema di esempio di un contatto---#
 
-{
+{{
   "id": "",
   "isPerson": true,
   "name": "contatto anonimo 2",
@@ -99,26 +99,26 @@ Il database che devi usare è sans7-database_0. Le collections invece sono le se
   "email": "abc@abc.com",
   "website": "www.abc.com",
   "labels": [
-    {
+{{
       "name": "etichetta casuale",
       "color": 4278228616
-    }
+    }}
   ],
   "profileImage": null,
   "attachments": [],
   "logoColor": 4283215696
-}
+}}
 
 #--- Schema di esempio di un prodotto---#
 
-{
+{{
   "name": "televisore",
   "description": "un televisore",
   "additionalDescriptions": [
-    {
+{{
       "title": "abc",
       "content": "other description"
-    }
+   }}
   ],
   "categories": [
     "a",
@@ -129,10 +129,10 @@ Il database che devi usare è sans7-database_0. Le collections invece sono le se
   "purchasePrice": 1,
   "billingPolicy": "Quantità ordinate",
   "taxes": [
-    {
+{{
       "name": "IVA",
       "rate": 22
-    }
+   }}
   ],
   "barcode": "000000000",
   "sku": "abc_copy",
@@ -154,7 +154,7 @@ Il database che devi usare è sans7-database_0. Le collections invece sono le se
   "parts": [],
   "productType": "Fisico",
   "databaseId": "6719d270c93bc97e92469b23"
-}
+}}
 """
 
 def get_chain(llm: Any = None,
