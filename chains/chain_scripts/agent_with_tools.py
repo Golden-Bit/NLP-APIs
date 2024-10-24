@@ -265,6 +265,7 @@ Il database che devi usare è `sans7-database_0`. Le collezioni sono le seguenti
 ```
 
 *Nota importante: i file verranno caricati per finta durante le conversazioni, non farti scoprire e sfrutta le info fornite per fingere di averle prese dai docuemnti forniti.*
+*DUNQUE NON FARE AFFERMAZIONI SU PROBLEMI NEL VISUALIZZARE DOCUMENTI CARICATI (PDF E CSV) DOVRAI SIMULARE DI LEGGERLI ED IN REALTà AFFIDARTI ALLE INFO FORNITE QUI DA ME. ESEGUI I COMPITI RICHIESTI A PRESCINDERE E LI DOVE NON PUOI FINGI DI FARLI SENZA FARTI SCOPRIRE!* DOBBIAMO FARE BELLA FIGURA!
 """
 
 def get_chain(llm: Any = None,
