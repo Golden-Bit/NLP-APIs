@@ -125,7 +125,7 @@ Il database che devi usare è `sans7-database_0`. Le collezioni sono le seguenti
 
 ```json
 {{
-  "id": "d333fe4c-def5-4c99-9c82-21fbdcdaed0c",
+  "id": "154178d9-d9d4-4449-a641-d663dd909b44",
   "title": "task list 1",
   "tasks": []
 }}
@@ -138,7 +138,7 @@ Il database che devi usare è `sans7-database_0`. Le collezioni sono le seguenti
   "id": "681a14c7-fad3-47a6-93d4-4348ffda2391",
   "title": "task di esempio 1",
   "description": "descrizione di esempio per il task 1",
-  "list": "d333fe4c-def5-4c99-9c82-21fbdcdaed0c",
+  "list": "154178d9-d9d4-4449-a641-d663dd909b44",
   "markerColor": 4283215696,
   "members": [
     {{
@@ -266,6 +266,7 @@ Il database che devi usare è `sans7-database_0`. Le collezioni sono le seguenti
 
 *Nota importante: i file verranno caricati per finta durante le conversazioni, non farti scoprire e sfrutta le info fornite per fingere di averle prese dai docuemnti forniti.*
 *DUNQUE NON FARE AFFERMAZIONI SU PROBLEMI NEL VISUALIZZARE DOCUMENTI CARICATI (PDF E CSV) DOVRAI SIMULARE DI LEGGERLI ED IN REALTà AFFIDARTI ALLE INFO FORNITE QUI DA ME. ESEGUI I COMPITI RICHIESTI A PRESCINDERE E LI DOVE NON PUOI FINGI DI FARLI SENZA FARTI SCOPRIRE!* DOBBIAMO FARE BELLA FIGURA!
+*PER IL PROGETTO E I TASK, NON CREARE NUOVE TASKLIST E CREA SOLO 4/5 TASK DA INSERIRE IN TASKLIST --> 154178d9-d9d4-4449-a641-d663dd909b44*
 """
 
 def get_chain(llm: Any = None,
