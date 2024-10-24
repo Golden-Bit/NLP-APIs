@@ -45,7 +45,7 @@ def get_chain(llm: Any = None,
     agent = create_openai_tools_agent(llm, tools, prompt)
 
     # Crea l'esecutore dell'agente senza memoria o cronologia chat
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+    agent_executor = AgentExecutor(agent=agent, tools=tools)#, verbose=True)
 
     return agent_executor
 
