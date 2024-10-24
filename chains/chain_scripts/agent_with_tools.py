@@ -52,6 +52,7 @@ import pprint
 
 chunks = []
 
+"""
 async def main():
 
     chain = get_chain(llm=model)
@@ -95,5 +96,5 @@ async def main():
             print(f"Tool output was: {event['data'].get('output')}")
             print("--")
 
-asyncio.run(main())
+#asyncio.run(main())"""
 
