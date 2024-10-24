@@ -11,7 +11,7 @@ from langchain_openai import ChatOpenAI
 from chains.chain_scripts.utilities.dataloader import DocumentToolKitManager
 from chains.chain_scripts.utilities.mongodb import MongoDBToolKitManager
 
-model = ChatOpenAI(temperature=0, streaming=True, api_key="")
+#model = ChatOpenAI(temperature=0, streaming=True, api_key="")
 
 import random
 

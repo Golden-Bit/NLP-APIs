@@ -51,7 +51,7 @@ def get_chain(llm: Any = None,
     return agent_executor
 
 
-# Esempio di esecuzione dell'agente
+"""# Esempio di esecuzione dell'agente
 async def main():
     # Configura il modello di chat OpenAI
     llm = ChatOpenAI(model="gpt-4o",
@@ -77,4 +77,4 @@ async def main():
     #print(response)
     #print("#"*120 + "\n\n")
 
-asyncio.run(main())
+asyncio.run(main())"""
